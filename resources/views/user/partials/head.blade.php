@@ -2,6 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 <title>Blog Home - Start Bootstrap Template</title>
 <link rel="icon" type="image/x-icon" href="" />
+
 <link href="{{ asset('css/user.css') }}" rel="stylesheet" />
 <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet" />

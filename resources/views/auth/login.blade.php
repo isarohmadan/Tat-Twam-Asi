@@ -42,10 +42,16 @@
             <h1>Sign in</h1>
             <span>or use your account</span>
 
-            @if (session('error'))
-                <div style="color: red;">{{ session('error') }}</div>
+            @if ($errors->any())
+                <div class="alert alert-danger" style="color: red;">
+                    <ul style="padding-left: 20px;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
-
+            
             <input type="email" name="email" placeholder="Email" required />
             <input type="password" name="password" placeholder="Password" required />
             <a href="#">Forgot your password?</a>

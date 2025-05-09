@@ -14,7 +14,11 @@ class AuthController extends Controller
     {
         return view('auth.login');
     }
-
+    // Tampilkan form register
+    public function showRegisterForm()
+    {
+        return view('auth.login');
+    }
     // Proses login
     public function login(Request $request)
     {
@@ -22,13 +26,13 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-    
+
         $user = User::where('email', $credentials['email'])->first();
     
         if (!$user) {
             return back()->withErrors(['email' => 'Email tidak ditemukan.']);
         }
-    
+        
         if (!Hash::check($credentials['password'], $user->password)) {
             return back()->withErrors(['password' => 'Password salah.']);
         }
@@ -49,27 +53,27 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/home');
     }
 
-    // Proses register
-    public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        $user = \App\Models\User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'], 
-            'is_admin' => false,
-        ]);
-
-        Auth::login($user);
-
-        return redirect()->route('user.home');
-    }
+      // Proses register
+      public function register(Request $request)
+      {
+          $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+          ]);
+  
+          $user = User::create([
+              'name' => $validated['name'],
+              'email' => $validated['email'],
+              'password' => $validated['password'], // Perbaikan di sini - tambahkan Hash
+              'is_admin' => false,
+          ]);
+  
+          Auth::login($user);
+  
+          return redirect()->route('home');
+      }
 }

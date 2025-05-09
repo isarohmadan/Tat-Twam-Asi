@@ -29,7 +29,7 @@
             <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                 <nav class="sb-sidenav-menu-nested nav">
                     <a class="nav-link" href="berita">Tambah Berita</a>
-                    <a class="nav-link" href="benner">Tambah Benner</a>
+                    <a class="nav-link" href="{{ route ('banners.index')}}">Tambah Benner</a>
                 </nav>
             </div>     
         </div>
