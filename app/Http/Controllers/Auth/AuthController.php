@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -28,23 +29,23 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $credentials['email'])->first();
-    
+
         if (!$user) {
             return back()->withErrors(['email' => 'Email tidak ditemukan.']);
         }
-        
+
         if (!Hash::check($credentials['password'], $user->password)) {
             return back()->withErrors(['password' => 'Password salah.']);
         }
-    
+
         Auth::login($user);
         $request->session()->regenerate();
-    
+
         return $user->is_admin
             ? redirect()->route('admin.dashboard')
             : redirect()->route('home');
     }
-    
+
     // Proses logout
     public function logout(Request $request)
     {
@@ -56,24 +57,24 @@ class AuthController extends Controller
         return redirect('/home');
     }
 
-      // Proses register
-      public function register(Request $request)
-      {
-          $validated = $request->validate([
+    // Proses register
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-          ]);
-  
-          $user = User::create([
-              'name' => $validated['name'],
-              'email' => $validated['email'],
-              'password' => $validated['password'], // Perbaikan di sini - tambahkan Hash
-              'is_admin' => false,
-          ]);
-  
-          Auth::login($user);
-  
-          return redirect()->route('home');
-      }
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'], // Perbaikan di sini - tambahkan Hash
+            'is_admin' => false,
+        ]);
+
+        Auth::login($user);
+
+        return redirect()->route('home');
+    }
 }

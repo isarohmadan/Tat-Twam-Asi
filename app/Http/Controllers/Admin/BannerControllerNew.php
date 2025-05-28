@@ -13,7 +13,7 @@ class BannerControllerNew extends Controller
     {
         $banners = Banner::orderBy('order')->get();
         $nextOrder = (Banner::max('order') ?? 0) + 1;
-    
+
         return view('admin.banner.banner', compact('banners', 'nextOrder'));
     }
 
@@ -24,7 +24,7 @@ class BannerControllerNew extends Controller
         ]);
 
         $imagePath = $request->file('banner_image')->store('banners', 'public');
-        
+
         Banner::create([
             'image_path' => $imagePath,
             'order' => $request->order ?? 1,

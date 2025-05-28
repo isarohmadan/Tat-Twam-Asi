@@ -17,4 +17,3 @@ class UserMiddleware
         return redirect('/login')->with('error', 'Anda tidak memiliki akses sebagai user.');
     }
 }
-

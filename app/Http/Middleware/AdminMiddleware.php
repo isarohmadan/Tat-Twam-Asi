@@ -16,5 +16,3 @@ class AdminMiddleware
         return redirect('/login')->with('error', 'Bukan admin');
     }
 }
-
-
