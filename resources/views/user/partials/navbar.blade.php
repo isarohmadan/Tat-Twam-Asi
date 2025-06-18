@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top sticky-top">
     <div class="container">
         <a class="navbar-brand" href="#">
             <img src="https://placeholder.pics/svg/150x50/888888/EEE/Logo" alt="..." height="36">
@@ -23,10 +23,8 @@
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">Profil</a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#">Sejarah</a></li>
-                        <li><a class="dropdown-item" href="#">Visi Misi</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        <li><a class="dropdown-item" href="#sejarah">Sejarah</a></li>
+                        <li><a class="dropdown-item" href="#visimisi">Visi Misi</a></li>
                     </ul>
                 </li>
                 @auth

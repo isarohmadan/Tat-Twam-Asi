@@ -19,36 +19,4 @@ class KegiatanController extends Controller
         return view('admin.kegiatan.kegiatan', compact('kegiatans', 'jumlahMenungguKegiatan')); // Pastikan path view benar
     }
 
-    public function approve(Request $request, $id)
-    {
-        $request->validate([
-            'catatan' => 'nullable|string|max:255'
-        ]);
-
-        $kegiatan = Kegiatan::findOrFail($id);
-        $kegiatan->update([
-            'status_pengajuan' => 'disetujui',
-            'catatan' => $request->catatan,
-            'alasan_penolakan' => null // Reset alasan penolakan jika ada
-        ]);
-
-        return redirect()->back()->with('success', 'Pengajuan kegiatan telah disetujui');
-    }
-
-
-    public function reject(Request $request, $id)
-    {
-        $request->validate([
-            'alasan_penolakan' => 'required|string|max:255'
-        ]);
-
-        $kegiatan = Kegiatan::findOrFail($id);
-        $kegiatan->update([
-            'status_pengajuan' => 'ditolak',
-            'alasan_penolakan' => $request->alasan_penolakan,
-            'catatan' => null // Reset catatan jika ada
-        ]);
-
-        return redirect()->back()->with('success', 'Pengajuan kegiatan telah ditolak');
-    }
 }

@@ -4,28 +4,34 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Berita extends Model
 {
     use HasFactory;
-
-    protected $table = 'beritas';
 
     protected $fillable = [
         'judul',
         'slug',
         'ringkasan',
         'isi',
-        'gambar',
         'tanggal_publikasi'
     ];
 
-   protected $casts = [
-        'tanggal_publikasi' => 'datetime',
+    protected $dates = [
+        'tanggal_publikasi',
+        'created_at',
+        'updated_at'
     ];
 
-    public function scopePublished($query)
+    public function images()
     {
-        return $query->where('tanggal_publikasi', '<=', now());
+        return $this->hasMany(BeritaImage::class);
+    }
+
+    public function featuredImage()
+    {
+        return $this->hasOne(BeritaImage::class)->where('is_featured', true);
     }
 }
+

@@ -1,119 +1,115 @@
 {{-- Blog Posts Section --}}
 <div class="container">
     <div class="row">
-        <!-- Blog entries-->
         <div class="col-lg-12">
-            @if($featuredBerita)
-                <!-- Featured blog post-->
+
+            {{-- Featured Post (Berita Terbaru yang Besar) --}}
+            @if(isset($featuredBerita))
                 <div class="card mb-4">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#beritaModal" 
-                       onclick="showBerita({{ $featuredBerita->id }})">
-                        <img class="card-img-top" src="{{ Storage::url($featuredBerita->gambar) }}" 
-                             alt="{{ $featuredBerita->judul }}" style="height: 300px; object-fit: cover;" />
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#beritaModal{{ $featuredBerita->id }}">
+                        @if($featuredBerita->featuredImage)
+                            <img class="card-img-top" src="{{ Storage::url($featuredBerita->featuredImage->path) }}"
+                                 alt="{{ $featuredBerita->judul }}" style="height: 400px; object-fit: cover;" />
+                        @endif
                     </a>
                     <div class="card-body">
-                        <div class="small text-muted">{{ $featuredBerita->tanggal_publikasi->format('F j, Y') }}</div>
+                        <div class="small text-muted">
+                            {{-- Menampilkan tanggal dengan format F j, Y --}}
+                            {{ $featuredBerita->tanggal_publikasi ? $featuredBerita->tanggal_publikasi->format('F j, Y') : 'Tanggal tidak tersedia' }}
+                        </div>
                         <h2 class="card-title">{{ $featuredBerita->judul }}</h2>
                         <p class="card-text">{{ Str::limit($featuredBerita->ringkasan, 150) }}</p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#beritaModal" 
-                                onclick="showBerita({{ $featuredBerita->id }})">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#beritaModal{{ $featuredBerita->id }}">
                             Read more →
                         </button>
                     </div>
                 </div>
             @endif
 
+            {{-- Other Posts --}}
             <div class="row">
-                @foreach($beritas->chunk(2) as $chunk)
+                @forelse($beritas->where('id', '!=', optional($featuredBerita)->id)->chunk(2) as $chunk)
                     @foreach($chunk as $berita)
                         <div class="col-lg-6">
-                            <!-- Blog post -->
                             <div class="card mb-4">
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#beritaModal" 
-                                   onclick="showBerita({{ $berita->id }})">
-                                    <img class="card-img-top" src="{{ Storage::url($berita->gambar) }}" 
-                                         alt="{{ $berita->judul }}" style="height: 200px; object-fit: cover;" />
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#beritaModal{{ $berita->id }}">
+                                    @if($berita->featuredImage)
+                                        <img class="card-img-top" src="{{ Storage::url($berita->featuredImage->path) }}"
+                                             alt="{{ $berita->judul }}" style="height: 250px; object-fit: cover;" />
+                                    @endif
                                 </a>
                                 <div class="card-body">
-                                    <div class="small text-muted">{{ $berita->tanggal_publikasi->format('F j, Y') }}</div>
+                                    <div class="small text-muted">
+                                        {{-- Menampilkan tanggal dengan format F j, Y --}}
+                                        {{ $berita->tanggal_publikasi ? $berita->tanggal_publikasi->format('F j, Y') : 'Tanggal tidak tersedia' }}
+                                    </div>
                                     <h2 class="card-title h4">{{ $berita->judul }}</h2>
                                     <p class="card-text">{{ Str::limit($berita->ringkasan, 100) }}</p>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#beritaModal" 
-                                            onclick="showBerita({{ $berita->id }})">
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#beritaModal{{ $berita->id }}">
                                         Read more →
                                     </button>
                                 </div>
                             </div>
                         </div>
                     @endforeach
-                @endforeach
+                @empty
+                    <div class="col-12">
+                        <div class="alert alert-info">Tidak ada berita tersedia</div>
+                    </div>
+                @endforelse
             </div>
+
         </div>
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="beritaModal" tabindex="-1" aria-labelledby="beritaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="beritaModalLabel">Detail Berita</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="beritaLoading" class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+{{-- Modal Loop for Semua Berita --}}
+@foreach($beritas as $berita)
+    <div class="modal fade" id="beritaModal{{ $berita->id }}" tabindex="-1" aria-labelledby="beritaModalLabel{{ $berita->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="beritaModalLabel{{ $berita->id }}">Detail Berita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            @if($berita->images && $berita->images->count() > 0)
+                                <div id="carousel{{ $berita->id }}" class="carousel slide mb-3" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        @foreach($berita->images as $index => $image)
+                                            <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                                                <img src="{{ Storage::url($image->path) }}" class="d-block w-100 rounded"
+                                                     alt="{{ $berita->judul }}" style="max-height: 400px; object-fit: cover;">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ $berita->id }}" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ $berita->id }}" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                </div>
+                            @endif
+
+                            <h2 class="mb-3">{{ $berita->judul }}</h2>
+                            <div class="text-muted mb-3">
+                                {{-- Menampilkan tanggal dengan format F j, Y --}}
+                                {{ $berita->tanggal_publikasi ? $berita->tanggal_publikasi->format('F j, Y') : 'Tanggal tidak tersedia' }}
+                            </div>
+                            <div class="fs-5 mb-3 fw-bold">{{ $berita->ringkasan }}</div>
+                            <div class="fs-5">{!! nl2br(e($berita->isi)) !!}</div>
+                        </div>
                     </div>
                 </div>
-                <div id="beritaContent" style="display: none;">
-                    <h2 id="beritaJudul" class="mb-3"></h2>
-                    <div class="text-muted mb-3" id="beritaTanggal"></div>
-                    <img id="beritaGambar" src="" class="img-fluid rounded mb-3" alt="">
-                    <div id="beritaRingkasan" class="fs-5 mb-3"></div>
-                    <div id="beritaIsi" class="fs-5"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-</div>
-
-@section('scripts')
-<script>
-    function showBerita(id) {
-        // Show loading, hide content
-        $('#beritaLoading').show();
-        $('#beritaContent').hide();
-        
-        // Fetch berita data
-        $.get(`/berita/${id}`, function(data) {
-            // Populate modal
-            $('#beritaJudul').text(data.judul);
-            $('#beritaTanggal').text(new Date(data.tanggal_publikasi).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            }));
-            $('#beritaGambar').attr('src', `/storage/${data.gambar}`).attr('alt', data.judul);
-            $('#beritaRingkasan').text(data.ringkasan);
-            $('#beritaIsi').html(data.isi.replace(/\n/g, '<br>'));
-            
-            // Hide loading, show content
-            $('#beritaLoading').hide();
-            $('#beritaContent').show();
-        }).fail(function() {
-            alert('Gagal memuat data berita');
-            $('#beritaModal').modal('hide');
-        });
-    }
-    
-    // Reset modal when closed
-    $('#beritaModal').on('hidden.bs.modal', function () {
-        $('#beritaLoading').show();
-        $('#beritaContent').hide();
-    });
-</script>
-@endsection
+@endforeach

@@ -1,6 +1,5 @@
 <?php
 
-// database/seeders/DatabaseSeeder.php
 
 namespace Database\Seeders;
 
@@ -16,16 +15,24 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Admin',
             'email' => 'admin@example.com',
-            'password' => 'admin123',
-            'is_admin' => true,
+            'password' => 'admin123', // Pastikan password ter-hash
+            'role' => 'admin', // Menetapkan role admin
+        ]);
+
+        // Membuat akun ketua yayasan
+        User::create([
+            'name' => 'Ketua Yayasan',
+            'email' => 'ketuayayasan@example.com',
+            'password' => 'ketuayayasan123', // Pastikan password ter-hash
+            'role' => 'ketua_yayasan', // Menetapkan role ketua yayasan
         ]);
 
         // Membuat akun user biasa
         User::create([
             'name' => 'User',
             'email' => 'user@example.com',
-            'password' => 'user123',
-            'is_admin' => false,
+            'password' => 'user123', // Pastikan password ter-hash
+            'role' => 'user', // Menetapkan role user
         ]);
     }
 }

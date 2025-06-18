@@ -22,7 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'is_admin',  // Menambahkan kolom is_admin agar dapat diisi
+        'role',  // Menambahkan kolom is_admin agar dapat diisi
     ];
 
     /**
@@ -60,8 +60,5 @@ class User extends Authenticatable
      *
      * @return bool
      */
-    public function isAdmin()
-    {
-        return $this->is_admin;
-    }
+
 }

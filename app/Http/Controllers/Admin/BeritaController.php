@@ -4,90 +4,149 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Berita;
+use App\Models\BeritaImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class BeritaController extends Controller
 {
-    public function index()
+public function index()
 {
-    $beritas = Berita::orderBy('tanggal_publikasi', 'desc')->paginate(10);
-    return view('admin.berita.berita', compact('beritas'));
+    // Ambil berita yang diurutkan berdasarkan ID atau waktu pembuatan (terbaru)
+    $beritas = Berita::with(['images', 'featuredImage'])
+                      ->orderByDesc('id') // Urutkan berdasarkan ID atau created_at terbaru
+                     ->paginate(10); 
+
+  
+    $featuredBerita = $beritas->first();
+
+    // Kembalikan data ke view
+    return view('admin.berita.berita', compact('beritas', 'featuredBerita'));
 }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'judul' => 'required|max:255',
-        'ringkasan' => 'required',
-        'isi' => 'required',
-        'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'tanggal_publikasi' => 'required|date',
-    ]);
+    {
+        $request->validate([
+            'judul' => 'required|max:255',
+            'ringkasan' => 'required',
+            'isi' => 'required',
+            'gambar' => 'required|array',
+            'gambar.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'tanggal_publikasi' => 'required|date',
+            'featured_image' => 'required|integer',
+        ]);
 
-    $slug = Str::slug($request->judul);
-    
-    // Cek duplikasi slug
-    $originalSlug = $slug;
-    $counter = 1;
-    while (Berita::where('slug', $slug)->exists()) {
-        $slug = $originalSlug . '-' . $counter++;
+        $slug = Str::slug($request->judul);
+        
+        // Cek duplikasi slug
+        $originalSlug = $slug;
+        $counter = 1;
+        while (Berita::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter++;
+        }
+
+        // Buat berita
+        $berita = Berita::create([
+            'judul' => $request->judul,
+            'slug' => $slug,
+            'ringkasan' => $request->ringkasan,
+            'isi' => $request->isi,
+            'tanggal_publikasi' => Carbon::parse($request->tanggal_publikasi),
+        ]);
+
+        // Simpan gambar-gambar
+        foreach ($request->file('gambar') as $index => $gambar) {
+            $gambarPath = $gambar->store('berita', 'public');
+            
+            BeritaImage::create([
+                'berita_id' => $berita->id,
+                'path' => $gambarPath,
+                'is_featured' => $index == $request->featured_image,
+            ]);
+        }
+
+        return back()->with('success', 'Berita berhasil ditambahkan!');
     }
 
-    // Simpan gambar ke folder 'berita' di storage
-    $gambarPath = $request->file('gambar')->store('berita', 'public');
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'judul' => 'required|max:255',
+            'slug' => 'required|unique:beritas,slug,' . $id,
+            'ringkasan' => 'required',
+            'isi' => 'required',
+            'gambar' => 'nullable|array',
+            'gambar.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'tanggal_publikasi' => 'required|date',
+            'featured_image' => 'required|integer',
+            'existing_images' => 'nullable|array',
+        ]);
 
-    Berita::create([
-        'judul' => $request->judul,
-        'slug' => $slug,
-        'ringkasan' => $request->ringkasan,
-        'isi' => $request->isi,
-        'gambar' => $gambarPath,
-        'tanggal_publikasi' => $request->tanggal_publikasi,
-    ]);
+        $berita = Berita::findOrFail($id);
 
-    return back()->with('success', 'Berita berhasil ditambahkan!');
-}
+        // Update data berita
+        $berita->update([
+            'judul' => $request->judul,
+            'slug' => $request->slug,
+            'ringkasan' => $request->ringkasan,
+            'isi' => $request->isi,
+            'tanggal_publikasi' => Carbon::parse($request->tanggal_publikasi)
+        ]);
 
-public function update(Request $request, $id)
-{
-    $request->validate([
-        'judul' => 'required|max:255',
-        'slug' => 'required|unique:berita,slug,' . $id,
-        'ringkasan' => 'required',
-        'isi' => 'required',
-        'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        'tanggal_publikasi' => 'required|date',
-    ]);
+        // Update gambar yang ada
+        if ($request->has('existing_images')) {
+            foreach ($berita->images as $image) {
+                $image->update([
+                    'is_featured' => in_array($image->id, $request->existing_images) && 
+                                    $image->id == $request->featured_image
+                ]);
+            }
+        }
 
-    $berita = Berita::findOrFail($id);
+        // Tambahkan gambar baru
+        if ($request->hasFile('gambar')) {
+            foreach ($request->file('gambar') as $index => $gambar) {
+                $gambarPath = $gambar->store('berita', 'public');
+                
+                BeritaImage::create([
+                    'berita_id' => $berita->id,
+                    'path' => $gambarPath,
+                    'is_featured' => $berita->images->count() == 0 && $index == 0,
+                ]);
+            }
+        }
 
-    if ($request->hasFile('gambar')) {
-        // Hapus gambar lama
-        Storage::disk('public')->delete($berita->gambar);
-        // Simpan gambar baru
-        $gambarPath = $request->file('gambar')->store('berita', 'public');
-        $berita->gambar = $gambarPath;
+        // Update featured image jika perlu
+        if ($request->has('featured_image')) {
+            $berita->images()->update(['is_featured' => false]);
+            $berita->images()->where('id', $request->featured_image)->update(['is_featured' => true]);
+        }
+
+        return back()->with('success', 'Berita berhasil diperbarui!');
     }
 
-    $berita->judul = $request->judul;
-    $berita->slug = $request->slug;
-    $berita->ringkasan = $request->ringkasan;
-    $berita->isi = $request->isi;
-    $berita->tanggal_publikasi = $request->tanggal_publikasi;
-    $berita->save();
+    public function destroy($id)
+    {
+        $berita = Berita::findOrFail($id);
+        
+        // Hapus semua gambar dari storage
+        foreach ($berita->images as $image) {
+            Storage::disk('public')->delete($image->path);
+        }
+        
+        $berita->delete();
 
-    return back()->with('success', 'Berita berhasil diperbarui!');
-}
+        return back()->with('success', 'Berita berhasil dihapus!');
+    }
 
-public function destroy($id)
-{
-    $berita = Berita::findOrFail($id);
-    // Hapus gambar dari storage
-    Storage::disk('public')->delete($berita->gambar);
-    $berita->delete();
+    public function destroyImage($id)
+    {
+        $image = BeritaImage::findOrFail($id);
+        Storage::disk('public')->delete($image->path);
+        $image->delete();
 
-    return back()->with('success', 'Berita berhasil dihapus!');
-}
+        return back()->with('success', 'Gambar berhasil dihapus!');
+    }
 }

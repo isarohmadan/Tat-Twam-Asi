@@ -20,11 +20,6 @@
                                 @error('judul') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
                             <div class="form-group">
-                                <label>Slug</label>
-                                <input type="text" class="form-control @error('slug') is-invalid @enderror" name="slug" value="{{ old('slug') }}" required>
-                                @error('slug') <span class="text-danger">{{ $message }}</span> @enderror
-                            </div>
-                            <div class="form-group">
                                 <label>Ringkasan</label>
                                 <textarea class="form-control @error('ringkasan') is-invalid @enderror" name="ringkasan" rows="2" required>{{ old('ringkasan') }}</textarea>
                                 @error('ringkasan') <span class="text-danger">{{ $message }}</span> @enderror
@@ -36,23 +31,25 @@
                             </div>
                             <div class="form-group">
                                 <label>Gambar</label>
-                                <input type="file" class="form-control-file @error('gambar') is-invalid @enderror" name="gambar" required>
+                                <input type="file" class="form-control-file @error('gambar') is-invalid @enderror" name="gambar[]" multiple required>
                                 @error('gambar') <span class="text-danger">{{ $message }}</span> @enderror
-                                <small class="form-text text-muted">Format: jpeg, png, jpg, gif, svg. Max size: 2MB</small>
+                                <small class="form-text text-muted">Format: jpeg, png, jpg, gif, svg. Max size: 2MB per gambar</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Gambar Utama</label>
+                                <select class="form-control" name="featured_image" required>
+                                    <option value="0">Pilih gambar utama (default gambar pertama)</option>
+                                </select>
+                                <small class="form-text text-muted">Gambar yang akan ditampilkan sebagai thumbnail</small>
                             </div>
                             <div class="form-group">
                                 <label>Tanggal Publikasi</label>
-                                <input type="date" class="form-control @error('tanggal_publikasi') is-invalid @enderror" name="tanggal_publikasi" required>
+                                <input type="date" class="form-control @error('tanggal_publikasi') is-invalid @enderror" name="tanggal_publikasi" value="{{ old('tanggal_publikasi') }}" required>
                                 @error('tanggal_publikasi') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
                             <button type="submit" class="btn btn-primary">Simpan</button>
                         </form>
                     </div>
-
-                    {{-- Notifikasi --}}
-                    @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
 
                     {{-- Daftar Berita --}}
                     <h4>Daftar Berita</h4>
@@ -62,7 +59,8 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Judul</th>
-                                    <th>Gambar</th>
+                                    <th>Gambar Utama</th>
+                                    <th>Jumlah Gambar</th>
                                     <th>Tanggal Publikasi</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -73,74 +71,89 @@
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $berita->judul }}</td>
                                         <td>
-                                            @if($berita->gambar)
-                                                <img src="{{ Storage::url($berita->gambar) }}" alt="Gambar Berita" style="max-width: 100px; max-height: 100px; object-fit: cover;">
+                                            @if($berita->featuredImage)
+                                                <img src="{{ Storage::url($berita->featuredImage->path) }}" alt="Gambar Utama" style="max-width: 100px; max-height: 100px; object-fit: cover;">
                                             @else
                                                 <span class="text-muted">Tidak ada gambar</span>
                                             @endif
                                         </td>
-                                        <td>{{ $berita->tanggal_publikasi->format('d M Y') }}</td>
+                                        <td>{{ $berita->images->count() }}</td>
+                                        <td>{{ $berita->tanggal_publikasi instanceof \Carbon\Carbon ? $berita->tanggal_publikasi->format('d M Y') : $berita->tanggal_publikasi }}</td>
                                         <td>
-                                            <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#editModal{{ $berita->id }}">Edit</button>
+                                            <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editModal{{ $berita->id }}">Edit</button>
                                             <form action="{{ route('beritas.destroy', $berita->id) }}" method="POST" style="display: inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="btn btn-sm btn-danger" onclick="return confirm('Hapus berita ini?')">Hapus</button>
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Hapus berita ini?')">Hapus</button>
                                             </form>
                                         </td>
                                     </tr>
 
-                                    {{-- Modal Edit --}}
-                                    <div class="modal fade" id="editModal{{ $berita->id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel{{ $berita->id }}" aria-hidden="true">
-                                        <div class="modal-dialog modal-lg" role="document">
+                                    <!-- Modal Edit Berita -->
+                                    <div class="modal fade" id="editModal{{ $berita->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $berita->id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title">Edit Berita</h5>
-                                                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                                                    <h5 class="modal-title" id="editModalLabel{{ $berita->id }}">Edit Berita</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <form action="{{ route('beritas.update', $berita->id) }}" method="POST" enctype="multipart/form-data">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <div class="modal-body">
+                                                <div class="modal-body">
+                                                    <form action="{{ route('beritas.update', $berita->id) }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        @method('PUT')
+
                                                         <div class="form-group">
                                                             <label>Judul</label>
-                                                            <input type="text" class="form-control" name="judul" value="{{ $berita->judul }}" required>
+                                                            <input type="text" class="form-control @error('judul') is-invalid @enderror" name="judul" value="{{ old('judul', $berita->judul) }}" required>
+                                                            @error('judul') <span class="text-danger">{{ $message }}</span> @enderror
                                                         </div>
-                                                        <div class="form-group">
-                                                            <label>Slug</label>
-                                                            <input type="text" class="form-control" name="slug" value="{{ $berita->slug }}" required>
-                                                        </div>
+
                                                         <div class="form-group">
                                                             <label>Ringkasan</label>
-                                                            <textarea class="form-control" name="ringkasan" rows="2" required>{{ $berita->ringkasan }}</textarea>
+                                                            <textarea class="form-control @error('ringkasan') is-invalid @enderror" name="ringkasan" rows="2" required>{{ old('ringkasan', $berita->ringkasan) }}</textarea>
+                                                            @error('ringkasan') <span class="text-danger">{{ $message }}</span> @enderror
                                                         </div>
+
                                                         <div class="form-group">
                                                             <label>Isi</label>
-                                                            <textarea class="form-control" name="isi" rows="5" required>{{ $berita->isi }}</textarea>
+                                                            <textarea class="form-control @error('isi') is-invalid @enderror" name="isi" rows="5" required>{{ old('isi', $berita->isi) }}</textarea>
+                                                            @error('isi') <span class="text-danger">{{ $message }}</span> @enderror
                                                         </div>
+
                                                         <div class="form-group">
-                                                            <label>Gambar Baru (kosongkan jika tidak ganti)</label>
-                                                            <input type="file" class="form-control-file" name="gambar">
-                                                            <small class="form-text text-muted">Gambar sekarang:</small>
-                                                            @if($berita->gambar)
-                                                                <img src="{{ Storage::url($berita->gambar) }}" alt="Gambar Berita" style="max-width: 100%;">
-                                                            @else
-                                                                <span class="text-muted">Tidak ada gambar</span>
-                                                            @endif
+                                                            <label>Gambar</label>
+                                                            <input type="file" class="form-control-file @error('gambar') is-invalid @enderror" name="gambar[]" multiple>
+                                                            @error('gambar') <span class="text-danger">{{ $message }}</span> @enderror
+                                                            <small class="form-text text-muted">Format: jpeg, png, jpg, gif, svg. Max size: 2MB per gambar</small>
                                                         </div>
+
+                                                        <div class="form-group">
+                                                            <label>Gambar Utama</label>
+                                                            <select class="form-control" name="featured_image" required>
+                                                                <option value="0">Pilih gambar utama (default gambar pertama)</option>
+                                                                @foreach($berita->images as $image)
+                                                                    <option value="{{ $image->id }}" {{ $berita->featuredImage && $berita->featuredImage->id == $image->id ? 'selected' : '' }}>
+                                                                        {{ $image->path }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            <small class="form-text text-muted">Gambar yang akan ditampilkan sebagai thumbnail</small>
+                                                        </div>
+
                                                         <div class="form-group">
                                                             <label>Tanggal Publikasi</label>
-                                                            <input type="date" class="form-control" name="tanggal_publikasi" value="{{ $berita->tanggal_publikasi->format('Y-m-d') }}" required>
+                                                            <input type="date" class="form-control @error('tanggal_publikasi') is-invalid @enderror" name="tanggal_publikasi" value="{{ old('tanggal_publikasi', \Carbon\Carbon::parse($berita->tanggal_publikasi)->format('Y-m-d')) }}" required>
+
+                                                            @error('tanggal_publikasi') <span class="text-danger">{{ $message }}</span> @enderror
                                                         </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                                                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                                    </div>
-                                                </form>
+
+                                                        <button type="submit" class="btn btn-primary">Perbarui Berita</button>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- End Modal Edit -->
                                 @endforeach
                             </tbody>
                         </table>
@@ -155,14 +168,4 @@
         </div>
     </div>
 </div>
-@endsection
-
-@section('scripts')
-<script>
-    $(document).ready(function () {
-        $('.modal').on('show.bs.modal', function (event) {
-            var modal = $(this);
-        });
-    });
-</script>
 @endsection

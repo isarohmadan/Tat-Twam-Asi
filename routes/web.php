@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AnakController;
@@ -10,11 +11,25 @@ use App\Http\Controllers\Admin\KegiatanController;
 use App\Http\Controllers\Admin\KeseluruhanDataController;
 use App\Http\Controllers\Admin\KunjunganController;
 use App\Http\Controllers\Admin\BiodataController;
+
+use App\Http\Controllers\KetuaYayasan\KetuaYayasanController;
+use App\Http\Controllers\KetuaYayasan\KetuaBannerControllerNew;
+use App\Http\Controllers\KetuaYayasan\KetuaBeritaController;
+use App\Http\Controllers\KetuaYayasan\KetuaKegiatanController;
+use App\Http\Controllers\KetuaYayasan\KetuaKeseluruhanDataController;
+use App\Http\Controllers\KetuaYayasan\KetuaKunjunganController;
+
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\UserKegiatanController;
 use App\Http\Controllers\User\UserKunjunganController;
+
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\UserMiddleware;
+use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\KetuaYayasanMiddleware;
+
+
+
 
 Route::get('/', function () {
     return redirect()->route('home');
@@ -23,6 +38,7 @@ Route::get('/', function () {
 Route::get('/home', [UserController::class, 'index'])->name('home');
 Route::get('/berita/{id}', [UserController::class, 'show'])->name('berita.show');
 
+
 // Login routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -30,6 +46,14 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 // Register routes
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+// Route untuk lupa password
+Route::get('forgot-password', [ResetPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+// Route untuk reset password
+Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 // Logout route
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -54,7 +78,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/keseluruhandata', [KeseluruhanDataController::class, 'index'])->name('keseluruhandata');
             });
 
-       Route::prefix('beritas')->middleware([AdminMiddleware::class])
+    Route::prefix('beritas')->middleware([AdminMiddleware::class])
         ->group(function () {
     Route::get('/', [BeritaController::class, 'index'])->name('beritas.index');
     Route::post('/', [BeritaController::class, 'store'])->name('beritas.store');
@@ -74,16 +98,15 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.kegiatan.')
         ->group(function () {
             Route::get('/', [KegiatanController::class, 'index'])->name('index');
-            Route::post('/approve/{id}', [KegiatanController::class, 'approve'])->name('approve');
-            Route::post('/reject/{id}', [KegiatanController::class, 'reject'])->name('reject');
         });
     Route::prefix('admin/kunjungan')->middleware([AdminMiddleware::class])
         ->name('admin.kunjungan.')
         ->group(function () {
             Route::get('/', [KunjunganController::class, 'index'])->name('index');
-            Route::post('/approve/{id}', [KunjunganController::class, 'approve'])->name('approve');
-            Route::post('/reject/{id}', [KunjunganController::class, 'reject'])->name('reject');
         });
+
+
+
 
 
     // User routes dengan FQCN juga (jika middleware UserMiddleware tidak didaftarkan)
@@ -97,5 +120,46 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/userkunjungan', [UserKunjunganController::class, 'index'])->name('userkunjungan');
             Route::get('/tambahpengajuankunjungan', [UserKunjunganController::class, 'create'])->name('tambahpengajuankunjungan');
             Route::post('/tambahpengajuankunjungan', [UserKunjunganController::class, 'store'])->name('storekunjungan');
+        });
+});
+
+
+Route::middleware(['auth'])->group(function () {
+Route::prefix('ketua_yayasan')
+        ->name('ketua_yayasan.')
+        ->middleware([KetuaYayasanMiddleware::class])
+        ->group(function () {
+
+            Route::get('/dashboard', [KetuaYayasanController::class, 'index'])->name('dashboard');
+            Route::get('/keseluruhandata', [KetuaKeseluruhanDataController::class, 'index'])->name('keseluruhandata');
+            });
+
+   Route::prefix('ketua_yayasan')->name('ketua_yayasan.')->middleware([KetuaYayasanMiddleware::class])->group(function () {
+    Route::get('/beritas', [KetuaBeritaController::class, 'index'])->name('beritas.index');
+    Route::post('/beritas', [KetuaBeritaController::class, 'store'])->name('beritas.store');
+    Route::put('/beritas{id}', [KetuaBeritaController::class, 'update'])->name('beritas.update');
+    Route::delete('/beritas{id}', action: [KetuaBeritaController::class, 'destroy'])->name('beritas.destroy');
+});
+
+ Route::prefix('ketua_yayasan')->name('ketua_yayasan.')->middleware([KetuaYayasanMiddleware::class])->group(function () {
+            Route::get('/banners', [KetuaBannerControllerNew::class, 'index'])->name('banners.index');
+            Route::post('/banners', [KetuaBannerControllerNew::class, 'store'])->name('banners.store');
+            Route::put('/banners{id}', [KetuaBannerControllerNew::class, 'update'])->name('banners.update');
+            Route::delete('/banners{id}', action: [KetuaBannerControllerNew::class, 'destroy'])->name('banners.destroy');
+        });
+
+    Route::prefix('ketua_yayasan/kegiatan')->middleware([KetuaYayasanMiddleware::class])
+        ->name('ketua_yayasan.kegiatan.')
+        ->group(function () {
+            Route::get('/', [KetuaKegiatanController::class, 'index'])->name('index');
+            Route::post('/approve/{id}', [KetuaKegiatanController::class, 'approve'])->name('approve');
+            Route::post('/reject/{id}', [KetuaKegiatanController::class, 'reject'])->name('reject');
+        });
+    Route::prefix('ketua_yayasan/kunjungan')->middleware([KetuaYayasanMiddleware::class])
+        ->name('ketua_yayasan.kunjungan.')
+        ->group(function () {
+            Route::get('/', [KetuaKunjunganController::class, 'index'])->name('index');
+            Route::post('/approve/{id}', [KetuaKunjunganController::class, 'approve'])->name('approve');
+            Route::post('/reject/{id}', [KetuaKunjunganController::class, 'reject'])->name('reject');
         });
 });

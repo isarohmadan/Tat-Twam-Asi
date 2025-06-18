@@ -21,30 +21,36 @@ class AuthController extends Controller
         return view('auth.login');
     }
     // Proses login
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+public function login(Request $request)
+{
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        $user = User::where('email', $credentials['email'])->first();
+    $user = User::where('email', $credentials['email'])->first();
 
-        if (!$user) {
-            return back()->withErrors(['email' => 'Email tidak ditemukan.']);
-        }
-
-        if (!Hash::check($credentials['password'], $user->password)) {
-            return back()->withErrors(['password' => 'Password salah.']);
-        }
-
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return $user->is_admin
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('home');
+    if (!$user) {
+        return back()->withErrors(['email' => 'Email tidak ditemukan.']);
     }
+
+    if (!Hash::check($credentials['password'], $user->password)) {
+        return back()->withErrors(['password' => 'Password salah.']);
+    }
+
+    Auth::login($user);
+    $request->session()->regenerate();
+
+    // Arahkan berdasarkan role
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    } elseif ($user->role === 'ketua_yayasan') {
+        return redirect()->route('ketua_yayasan.dashboard');
+    }
+
+    return redirect()->route('home'); // Jika role adalah user
+}
+
 
     // Proses logout
     public function logout(Request $request)
@@ -59,22 +65,22 @@ class AuthController extends Controller
 
     // Proses register
     public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8|confirmed',
+    ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'], // Perbaikan di sini - tambahkan Hash
-            'is_admin' => false,
-        ]);
+    $user = User::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'password' => $validated['password'], // Perbaikan: Password di-hash
+        'role' => 'user', // Pastikan menyimpan role yang benar, misal user
+    ]);
 
-        Auth::login($user);
+    Auth::login($user);
 
-        return redirect()->route('home');
-    }
+    return redirect()->route('home');
+}
 }
