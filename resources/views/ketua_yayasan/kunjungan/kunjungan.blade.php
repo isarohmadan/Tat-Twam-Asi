@@ -48,6 +48,14 @@
 @section('content')
     <div class="container-fluid">
         <h1 class="h3 mb-2 text-gray-800">Pengajuan Kunjungan</h1>
+
+        <!-- Tombol Lihat Jadwal -->
+        <div class="mb-3">
+            <a href="{{ route('ketua_yayasan.jadwal.index') }}" class="btn btn-primary">
+                <i class="fas fa-calendar-alt"></i> Lihat Jadwal
+            </a>
+        </div>
+
         <div class="card shadow mb-4">
             <div class="card-body">
                 @if (session('success'))

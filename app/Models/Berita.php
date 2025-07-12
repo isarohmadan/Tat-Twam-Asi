@@ -34,4 +34,3 @@ class Berita extends Model
         return $this->hasOne(BeritaImage::class)->where('is_featured', true);
     }
 }
-

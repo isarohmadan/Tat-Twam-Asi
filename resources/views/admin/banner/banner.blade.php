@@ -25,7 +25,7 @@
                                         </span>
                                     @enderror
                                     <small class="form-text text-muted">Format: jpeg, png, jpg, gif, svg. Max size:
-                                        2MB</small>
+                                        3MB</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="order">Order</label>

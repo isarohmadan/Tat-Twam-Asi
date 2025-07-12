@@ -18,5 +18,6 @@ class Biodata extends Model
         'tanggal_lahir',
         'asal',
         'sekolah',
+        'foto'
     ];
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\KetuaYayasan;
 use App\Http\Controllers\Controller;
 use App\Models\Kunjungan;
 use Illuminate\Http\Request;
+use App\Mail\PengajuanDisetujui;
+use Illuminate\Support\Facades\Mail;
 
 class KetuaKunjunganController extends Controller
 {
@@ -27,11 +29,16 @@ class KetuaKunjunganController extends Controller
         ]);
 
         $kunjungan = Kunjungan::findOrFail($id);
+        $user = $kunjungan->user; // Mendapatkan pengguna yang mengajukan kunjungan
+
         $kunjungan->update([
             'status' => 'disetujui',
             'catatan' => $request->catatan,
             'alasan_penolakan' => null
         ]);
+
+        // Kirim email pemberitahuan kepada pengguna
+        Mail::to($user->email)->send(new PengajuanDisetujui($user, null, $kunjungan, $request->catatan));
 
         return redirect()->back()->with('success', 'Pengajuan kunjungan telah disetujui');
     }

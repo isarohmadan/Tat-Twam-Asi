@@ -44,5 +44,6 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'user' => \App\Http\Middleware\UserMiddleware::class,
+        'ketua_yayasan' => \App\Http\Middleware\KetuaYayasanMiddleware::class,
     ];
 }

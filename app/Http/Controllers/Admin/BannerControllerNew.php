@@ -20,7 +20,7 @@ class BannerControllerNew extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:3048',
         ]);
 
         $imagePath = $request->file('banner_image')->store('banners', 'public');

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\AdminController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\KetuaYayasan\KetuaBeritaController;
 use App\Http\Controllers\KetuaYayasan\KetuaKegiatanController;
 use App\Http\Controllers\KetuaYayasan\KetuaKeseluruhanDataController;
 use App\Http\Controllers\KetuaYayasan\KetuaKunjunganController;
+use App\Http\Controllers\KetuaYayasan\KetuaAnakController;
+use App\Http\Controllers\KetuaYayasan\JadwalController;
 
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\UserKegiatanController;
@@ -62,7 +65,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Group routes yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
 
-    // Admin routes dengan FQCN (tanpa alias)
+ 
     Route::prefix('admin')
         ->name('admin.')
         ->middleware([AdminMiddleware::class])
@@ -76,15 +79,17 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/anak/{id}', [AnakController::class, 'destroy'])->name('anak.destroy');
             Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
             Route::get('/keseluruhandata', [KeseluruhanDataController::class, 'index'])->name('keseluruhandata');
-            });
+            Route::get('/anak/export', [AnakController::class, 'export'])->name('anak.export');
+            Route::get('/anak/export-pdf/{id}', [AnakController::class, 'exportPdf'])->name('anak.exportpdf');
+        });
 
     Route::prefix('beritas')->middleware([AdminMiddleware::class])
         ->group(function () {
-    Route::get('/', [BeritaController::class, 'index'])->name('beritas.index');
-    Route::post('/', [BeritaController::class, 'store'])->name('beritas.store');
-    Route::put('/{id}', [BeritaController::class, 'update'])->name('beritas.update');
-    Route::delete('/{id}', action: [BeritaController::class, 'destroy'])->name('beritas.destroy');
-});
+            Route::get('/', [BeritaController::class, 'index'])->name('beritas.index');
+            Route::post('/', [BeritaController::class, 'store'])->name('beritas.store');
+            Route::put('/{id}', [BeritaController::class, 'update'])->name('beritas.update');
+            Route::delete('/{id}', action: [BeritaController::class, 'destroy'])->name('beritas.destroy');
+        });
 
     Route::prefix('banners')->middleware([AdminMiddleware::class])
         ->group(function () {
@@ -115,38 +120,42 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/userkegiatan', [UserKegiatanController::class, 'index'])->name('userkegiatan');
             Route::get('/tambahpengajuankegiatan', [UserKegiatanController::class, 'create'])->name('tambahpengajuankegiatan'); // Diubah
             Route::post('/tambahpengajuankegiatan', [UserKegiatanController::class, 'store'])->name('storekegiatan');
-
+            Route::post('/userkegiatan/{id}/batalkan', [UserKegiatanController::class, 'cancelRequest'])->name('batalkan.kegiatan');
 
             Route::get('/userkunjungan', [UserKunjunganController::class, 'index'])->name('userkunjungan');
             Route::get('/tambahpengajuankunjungan', [UserKunjunganController::class, 'create'])->name('tambahpengajuankunjungan');
             Route::post('/tambahpengajuankunjungan', [UserKunjunganController::class, 'store'])->name('storekunjungan');
+            
         });
 });
 
 
 Route::middleware(['auth'])->group(function () {
-Route::prefix('ketua_yayasan')
+    Route::prefix('ketua_yayasan')
         ->name('ketua_yayasan.')
         ->middleware([KetuaYayasanMiddleware::class])
         ->group(function () {
-
+            Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal.index');
+            Route::get('/dataanak', [KetuaAnakController::class, 'index'])->name('anak.dataanak');
             Route::get('/dashboard', [KetuaYayasanController::class, 'index'])->name('dashboard');
             Route::get('/keseluruhandata', [KetuaKeseluruhanDataController::class, 'index'])->name('keseluruhandata');
-            });
-
-   Route::prefix('ketua_yayasan')->name('ketua_yayasan.')->middleware([KetuaYayasanMiddleware::class])->group(function () {
-    Route::get('/beritas', [KetuaBeritaController::class, 'index'])->name('beritas.index');
-    Route::post('/beritas', [KetuaBeritaController::class, 'store'])->name('beritas.store');
-    Route::put('/beritas{id}', [KetuaBeritaController::class, 'update'])->name('beritas.update');
-    Route::delete('/beritas{id}', action: [KetuaBeritaController::class, 'destroy'])->name('beritas.destroy');
-});
-
- Route::prefix('ketua_yayasan')->name('ketua_yayasan.')->middleware([KetuaYayasanMiddleware::class])->group(function () {
-            Route::get('/banners', [KetuaBannerControllerNew::class, 'index'])->name('banners.index');
-            Route::post('/banners', [KetuaBannerControllerNew::class, 'store'])->name('banners.store');
-            Route::put('/banners{id}', [KetuaBannerControllerNew::class, 'update'])->name('banners.update');
-            Route::delete('/banners{id}', action: [KetuaBannerControllerNew::class, 'destroy'])->name('banners.destroy');
+            Route::get('/anak/export', [KetuaAnakController::class, 'export'])->name('anak.export');
+            Route::get('/anak/export-pdf/{id}', [KetuaAnakController::class, 'exportPdf'])->name('anak.exportpdf');
         });
+
+    Route::prefix('ketua_yayasan')->name('ketua_yayasan.')->middleware([KetuaYayasanMiddleware::class])->group(function () {
+        Route::get('/beritas', [KetuaBeritaController::class, 'index'])->name('beritas.index');
+        Route::post('/beritas', [KetuaBeritaController::class, 'store'])->name('beritas.store');
+        Route::put('/beritas{id}', [KetuaBeritaController::class, 'update'])->name('beritas.update');
+        Route::delete('/beritas{id}', action: [KetuaBeritaController::class, 'destroy'])->name('beritas.destroy');
+    });
+
+    Route::prefix('ketua_yayasan')->name('ketua_yayasan.')->middleware([KetuaYayasanMiddleware::class])->group(function () {
+        Route::get('/banners', [KetuaBannerControllerNew::class, 'index'])->name('banners.index');
+        Route::post('/banners', [KetuaBannerControllerNew::class, 'store'])->name('banners.store');
+        Route::put('/banners{id}', [KetuaBannerControllerNew::class, 'update'])->name('banners.update');
+        Route::delete('/banners{id}', action: [KetuaBannerControllerNew::class, 'destroy'])->name('banners.destroy');
+    });
 
     Route::prefix('ketua_yayasan/kegiatan')->middleware([KetuaYayasanMiddleware::class])
         ->name('ketua_yayasan.kegiatan.')
@@ -154,6 +163,8 @@ Route::prefix('ketua_yayasan')
             Route::get('/', [KetuaKegiatanController::class, 'index'])->name('index');
             Route::post('/approve/{id}', [KetuaKegiatanController::class, 'approve'])->name('approve');
             Route::post('/reject/{id}', [KetuaKegiatanController::class, 'reject'])->name('reject');
+            Route::post('/{id}/approve-cancel', [KetuaKegiatanController::class, 'approveCancel'])->name('kegiatan.approvecancel');
+            Route::post('/{id}/reject-cancel', [KetuaKegiatanController::class, 'rejectCancel'])->name('kegiatan.rejectcancel');
         });
     Route::prefix('ketua_yayasan/kunjungan')->middleware([KetuaYayasanMiddleware::class])
         ->name('ketua_yayasan.kunjungan.')

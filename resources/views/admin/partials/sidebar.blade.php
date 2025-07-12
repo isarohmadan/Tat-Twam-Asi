@@ -7,7 +7,7 @@
                 Keseluruhan Data
             </a>
             <div class="sb-sidenav-menu-heading">Data</div>
-            <a class="nav-link" href="dataanak">
+            <a class="nav-link" href="{{ route('admin.anak.dataanak') }}">
                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                 Data Anak
             </a>
@@ -37,6 +37,20 @@
     </div>
     <div class="sb-sidenav-footer">
         <div class="small">Logged in as:</div>
-        Start Bootstrap
+        @if (Auth::check())
+            @php
+                $role = Auth::user()->role;
+            @endphp
+
+            @if ($role == 'admin')
+                Admin Yayasan
+            @elseif ($role == 'ketua_yayasan')
+                Ketua Yayasan
+            @else
+                Pengguna
+            @endif
+        @else
+            Guest
+        @endif
     </div>
 </nav>

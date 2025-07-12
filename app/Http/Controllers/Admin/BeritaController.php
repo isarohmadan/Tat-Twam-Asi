@@ -12,19 +12,19 @@ use Carbon\Carbon;
 
 class BeritaController extends Controller
 {
-public function index()
-{
-    // Ambil berita yang diurutkan berdasarkan ID atau waktu pembuatan (terbaru)
-    $beritas = Berita::with(['images', 'featuredImage'])
-                      ->orderByDesc('id') // Urutkan berdasarkan ID atau created_at terbaru
-                     ->paginate(10); 
+    public function index()
+    {
+        // Ambil berita yang diurutkan berdasarkan ID atau waktu pembuatan (terbaru)
+        $beritas = Berita::with(['images', 'featuredImage'])
+            ->orderByDesc('id') // Urutkan berdasarkan ID atau created_at terbaru
+            ->paginate(10);
 
-  
-    $featuredBerita = $beritas->first();
 
-    // Kembalikan data ke view
-    return view('admin.berita.berita', compact('beritas', 'featuredBerita'));
-}
+        $featuredBerita = $beritas->first();
+
+        // Kembalikan data ke view
+        return view('admin.berita.berita', compact('beritas', 'featuredBerita'));
+    }
 
     public function store(Request $request)
     {
@@ -39,7 +39,7 @@ public function index()
         ]);
 
         $slug = Str::slug($request->judul);
-        
+
         // Cek duplikasi slug
         $originalSlug = $slug;
         $counter = 1;
@@ -59,7 +59,7 @@ public function index()
         // Simpan gambar-gambar
         foreach ($request->file('gambar') as $index => $gambar) {
             $gambarPath = $gambar->store('berita', 'public');
-            
+
             BeritaImage::create([
                 'berita_id' => $berita->id,
                 'path' => $gambarPath,
@@ -99,8 +99,8 @@ public function index()
         if ($request->has('existing_images')) {
             foreach ($berita->images as $image) {
                 $image->update([
-                    'is_featured' => in_array($image->id, $request->existing_images) && 
-                                    $image->id == $request->featured_image
+                    'is_featured' => in_array($image->id, $request->existing_images) &&
+                        $image->id == $request->featured_image
                 ]);
             }
         }
@@ -109,7 +109,7 @@ public function index()
         if ($request->hasFile('gambar')) {
             foreach ($request->file('gambar') as $index => $gambar) {
                 $gambarPath = $gambar->store('berita', 'public');
-                
+
                 BeritaImage::create([
                     'berita_id' => $berita->id,
                     'path' => $gambarPath,
@@ -130,12 +130,12 @@ public function index()
     public function destroy($id)
     {
         $berita = Berita::findOrFail($id);
-        
+
         // Hapus semua gambar dari storage
         foreach ($berita->images as $image) {
             Storage::disk('public')->delete($image->path);
         }
-        
+
         $berita->delete();
 
         return back()->with('success', 'Berita berhasil dihapus!');

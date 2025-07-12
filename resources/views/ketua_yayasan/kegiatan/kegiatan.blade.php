@@ -48,6 +48,13 @@
 @section('content')
     <div class="container-fluid">
         <h1 class="h3 mb-2 text-gray-800">Pengajuan Kegiatan</h1>
+
+        <div class="mb-3">
+            <a href="{{ route('ketua_yayasan.jadwal.index') }}" class="btn btn-primary">
+                <i class="fas fa-calendar-alt"></i> Lihat Jadwal
+            </a>
+        </div>
+
         <div class="card shadow mb-4">
             <div class="card-body">
                 @if (session('success'))
@@ -80,17 +87,15 @@
                                     <td>{{ $kegiatan->nama_instansi }}</td>
                                     <td>{{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->format('d/m/Y') }}</td>
                                     <td>
-                                        <span
-                                            class="badge 
-                                    @if ($kegiatan->status_pengajuan == 'disetujui') bg-success
-                                    @elseif($kegiatan->status_pengajuan == 'ditolak') bg-danger
-                                    @else bg-warning @endif">
+                                        <span class="badge 
+                                            @if ($kegiatan->status_pengajuan == 'disetujui') bg-success
+                                            @elseif($kegiatan->status_pengajuan == 'ditolak') bg-danger
+                                            @else bg-warning @endif">
                                             {{ ucfirst($kegiatan->status_pengajuan) }}
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ asset('storage/' . $kegiatan->surat_pengajuan) }}" target="_blank"
-                                            class="btn btn-sm btn-info">
+                                        <a href="{{ asset('storage/' . $kegiatan->surat_pengajuan) }}" target="_blank" class="btn btn-sm btn-info">
                                             <i class="fas fa-eye"></i> Lihat
                                         </a>
                                     </td>
@@ -101,8 +106,7 @@
                                                     data-bs-target="#approveModal{{ $kegiatan->id }}">
                                                     <i class="fas fa-check"></i> Setuju
                                                 </button>
-                                                <button type="button" class="btn btn-danger btn-sm ms-1"
-                                                    data-bs-toggle="modal"
+                                                <button type="button" class="btn btn-danger btn-sm ms-1" data-bs-toggle="modal"
                                                     data-bs-target="#rejectModal{{ $kegiatan->id }}">
                                                     <i class="fas fa-times"></i> Tolak
                                                 </button>
@@ -117,6 +121,24 @@
                                             <i class="fas fa-info-circle"></i> Detail
                                         </button>
                                     </td>
+                                    <td>
+                                        @if ($kegiatan->status_pembatalan == 'menunggu')
+                                            <div class="mt-2">
+                                                <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#approveCancelModal{{ $kegiatan->id }}">
+                                                    Setujui Pembatalan
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#rejectCancelModal{{ $kegiatan->id }}">
+                                                    Tolak Pembatalan
+                                                </button>
+                                            </div>
+                                        @elseif ($kegiatan->status_pembatalan == 'disetujui')
+                                            <span class="badge bg-success d-block mt-2">Dibatalkan</span>
+                                        @elseif ($kegiatan->status_pembatalan == 'ditolak')
+                                            <span class="badge bg-danger d-block mt-2">Pembatalan Ditolak</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -126,141 +148,92 @@
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- Modals for Approve, Reject, Cancel, and Detail -->
     @foreach ($kegiatans as $kegiatan)
         <!-- Approve Modal -->
-        <div class="modal fade" id="approveModal{{ $kegiatan->id }}" tabindex="-1" aria-labelledby="approveModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="approveModal{{ $kegiatan->id }}" tabindex="-1" aria-labelledby="approveModalLabel{{ $kegiatan->id }}" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="{{ route('ketua_yayasan.kegiatan.approve', $kegiatan->id) }}" method="POST">
-                        @csrf
+                <form action="{{ route('ketua_yayasan.kegiatan.approve', $kegiatan->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="approveModalLabel">Setujui Pengajuan</h5>
+                            <h5 class="modal-title" id="approveModalLabel{{ $kegiatan->id }}">Setujui Pengajuan</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="catatan" class="form-label">Catatan (Opsional)</label>
-                                <textarea class="form-control" name="catatan" id="catatan" rows="3"></textarea>
-                            </div>
+                            <label for="catatan">Catatan (Opsional):</label>
+                            <textarea class="form-control" name="catatan" rows="3"></textarea>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                             <button type="submit" class="btn btn-success">Setujui</button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
 
         <!-- Reject Modal -->
-        <div class="modal fade" id="rejectModal{{ $kegiatan->id }}" tabindex="-1" aria-labelledby="rejectModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="rejectModal{{ $kegiatan->id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ $kegiatan->id }}" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="{{ route('ketua_yayasan.kegiatan.reject', $kegiatan->id) }}" method="POST">
-                        @csrf
+                <form action="{{ route('ketua_yayasan.kegiatan.reject', $kegiatan->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="rejectModalLabel">Tolak Pengajuan</h5>
+                            <h5 class="modal-title" id="rejectModalLabel{{ $kegiatan->id }}">Tolak Pengajuan</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="alasan_penolakan" class="form-label">Alasan Penolakan</label>
-                                <textarea class="form-control" name="alasan_penolakan" id="alasan_penolakan" rows="3" required></textarea>
-                            </div>
+                            <label for="alasan_penolakan">Alasan Penolakan</label>
+                            <textarea class="form-control" name="alasan_penolakan" rows="3" required></textarea>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                             <button type="submit" class="btn btn-danger">Tolak</button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
 
         <!-- Detail Modal -->
-        <div class="modal fade" id="detailModal{{ $kegiatan->id }}" tabindex="-1" aria-labelledby="detailModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="detailModal{{ $kegiatan->id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ $kegiatan->id }}" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="detailModalLabel">Detail Pengajuan Kegiatan</h5>
+                        <h5 class="modal-title" id="detailModalLabel{{ $kegiatan->id }}">Detail Pengajuan Kegiatan</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <h6 class="fw-bold">Informasi Pengaju</h6>
-                                <hr>
-                                <div class="mb-3">
-                                    <label>Nama Pengaju:</label>
-                                    <p>{{ $kegiatan->nama_pengaju }}</p>
-                                </div>
-                                <div class="mb-3">
-                                    <label>Alamat:</label>
-                                    <p>{{ $kegiatan->alamat }}</p>
-                                </div>
-                                <div class="mb-3">
-                                    <label>No Telepon:</label>
-                                    <p>{{ $kegiatan->no_telepon }}</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="fw-bold">Informasi Kegiatan</h6>
-                                <hr>
-                                <div class="mb-3">
-                                    <label>Judul Kegiatan:</label>
-                                    <p>{{ $kegiatan->judul_kegiatan }}</p>
-                                </div>
-                                <div class="mb-3">
-                                    <label>Deskripsi Kegiatan:</label>
-                                    <p>{{ $kegiatan->deskripsi }}</p>
-                                </div>
-                                <div class="mb-3">
-                                    <label>Nama Instansi:</label>
-                                    <p>{{ $kegiatan->nama_instansi }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label>Tanggal Mulai:</label>
-                                    <p>{{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->format('d/m/Y') }}</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label>Tanggal Selesai:</label>
-                                    <p>{{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->format('d/m/Y') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label>Status Pengajuan:</label>
-                            <p>
-                                <span
-                                    class="badge 
+                        <h6>Informasi Pengaju:</h6>
+                        <p>Nama Pengaju: {{ $kegiatan->nama_pengaju }}</p>
+                        <p>Alamat: {{ $kegiatan->alamat }}</p>
+                        <p>No Telepon: {{ $kegiatan->no_telepon }}</p>
+
+                        <h6>Informasi Kegiatan:</h6>
+                        <p>Judul Kegiatan: {{ $kegiatan->judul_kegiatan }}</p>
+                        <p>Deskripsi: {{ $kegiatan->deskripsi }}</p>
+                        <p>Nama Instansi: {{ $kegiatan->nama_instansi }}</p>
+
+                        <h6>Tanggal Mulai dan Selesai:</h6>
+                        <p>{{ \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->format('d/m/Y') }} - 
+                            {{ \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->format('d/m/Y') }}</p>
+
+                        <h6>Status Pengajuan:</h6>
+                        <span class="badge 
                             @if ($kegiatan->status_pengajuan == 'disetujui') bg-success
                             @elseif($kegiatan->status_pengajuan == 'ditolak') bg-danger
                             @else bg-warning @endif">
-                                    {{ ucfirst($kegiatan->status_pengajuan) }}
-                                </span>
-                            </p>
-                        </div>
+                            {{ ucfirst($kegiatan->status_pengajuan) }}
+                        </span>
+
                         @if ($kegiatan->alasan_penolakan)
-                            <div class="mb-3">
-                                <label>Alasan Penolakan:</label>
-                                <p>{{ $kegiatan->alasan_penolakan }}</p>
-                            </div>
+                            <h6>Alasan Penolakan:</h6>
+                            <p>{{ $kegiatan->alasan_penolakan }}</p>
                         @endif
                         @if ($kegiatan->catatan)
-                            <div class="mb-3">
-                                <label>Catatan:</label>
-                                <p>{{ $kegiatan->catatan }}</p>
-                            </div>
+                            <h6>Catatan:</h6>
+                            <p>{{ $kegiatan->catatan }}</p>
                         @endif
                     </div>
                     <div class="modal-footer">
@@ -269,6 +242,7 @@
                 </div>
             </div>
         </div>
+
     @endforeach
 @endsection
 
@@ -278,20 +252,7 @@
     <script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
     <script>
         $(document).ready(function() {
-            // Inisialisasi DataTable
             $('#dataTable').DataTable();
-
-            // Inisialisasi tooltip
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-
-            // Debug modal
-            console.log('Script initialized');
-            $('[data-bs-toggle="modal"]').click(function() {
-                console.log('Modal button clicked:', $(this).data('bs-target'));
-            });
         });
     </script>
 @endsection

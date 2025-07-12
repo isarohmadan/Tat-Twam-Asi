@@ -9,3 +9,7 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+.navbar-nav .nav-item.active .nav-link {
+    color: #FFD700;  /* Ganti dengan warna cerah yang Anda inginkan, seperti kuning emas */
+}

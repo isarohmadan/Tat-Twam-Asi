@@ -21,7 +21,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
     // Proses login
-public function login(Request $request)
+    public function login(Request $request)
 {
     $credentials = $request->validate([
         'email' => ['required', 'email'],
@@ -40,6 +40,9 @@ public function login(Request $request)
 
     Auth::login($user);
     $request->session()->regenerate();
+
+    // Set session flash message untuk login berhasil
+    $request->session()->flash('success', 'Login berhasil, selamat datang!');
 
     // Arahkan berdasarkan role
     if ($user->role === 'admin') {
@@ -65,22 +68,24 @@ public function login(Request $request)
 
     // Proses register
     public function register(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8|confirmed',
-    ]);
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-    $user = User::create([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'password' => $validated['password'], // Perbaikan: Password di-hash
-        'role' => 'user', // Pastikan menyimpan role yang benar, misal user
-    ]);
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'], // Perbaikan: Password di-hash
+            'role' => 'user', // Pastikan menyimpan role yang benar, misal user
+        ]);
 
-    Auth::login($user);
+        Auth::login($user);
 
-    return redirect()->route('home');
-}
+        session()->flash('success', 'Registrasi berhasil, Selamat Datang.');
+
+        return redirect()->route('home');
+    }
 }

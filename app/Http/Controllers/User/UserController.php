@@ -9,24 +9,24 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-public function index()
-{
-    $banners = Banner::where('is_active', true)->get();
-    $beritas = Berita::with(['featuredImage', 'images'])
-                    ->latest() // Mengurutkan berdasarkan created_at terbaru
-                    ->get();
+    public function index()
+    {
+        $banners = Banner::where('is_active', true)->get();
+        $beritas = Berita::with(['featuredImage', 'images'])
+            ->latest() // Mengurutkan berdasarkan created_at terbaru
+            ->get();
 
-    // Mengubah tanggal_publikasi menjadi objek Carbon jika belum
-    foreach ($beritas as $berita) {
-        $berita->tanggal_publikasi = \Carbon\Carbon::parse($berita->tanggal_publikasi);
+        // Mengubah tanggal_publikasi menjadi objek Carbon jika belum
+        foreach ($beritas as $berita) {
+            $berita->tanggal_publikasi = \Carbon\Carbon::parse($berita->tanggal_publikasi);
+        }
+
+        // Ambil berita pertama sebagai featured post
+        $featuredBerita = $beritas->first();
+
+        return view('user.home', compact('banners', 'featuredBerita', 'beritas'));
     }
 
-    // Ambil berita pertama sebagai featured post
-    $featuredBerita = $beritas->first();
-
-    return view('user.home', compact('banners', 'featuredBerita', 'beritas'));
-}
-    
     public function show($id)
     {
         $berita = Berita::with('images')->find($id);
@@ -38,7 +38,7 @@ public function index()
             ], 404);
         }
 
-        $images = $berita->images->map(function($image) {
+        $images = $berita->images->map(function ($image) {
             return asset(Storage::url($image->path));
         });
 

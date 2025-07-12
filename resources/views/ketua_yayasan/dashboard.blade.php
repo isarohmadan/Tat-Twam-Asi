@@ -14,7 +14,8 @@
                     <div class="card-block p-3 text-white">
                         <h2 class="d-flex justify-content-between align-items-center ">
                             @if ($jumlahMenungguKegiatan > 0)
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger"
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger"
                                     style="width: 28px; height: 28px; font-size: 14px; z-index: 1;">
                                     {{ $jumlahMenungguKegiatan }}
                                 </span>
@@ -30,7 +31,7 @@
                             <span class="fw-semibold">
                                 {{ $kegiatans->where('status_pengajuan', 'disetujui')->count() }}
                             </span>
-                             <span>Ditolak</span>
+                            <span>Ditolak</span>
                             <span class="fw-semibold">
                                 {{ $kegiatans->where('status_pengajuan', 'ditolak')->count() }}
                             </span>
@@ -91,7 +92,7 @@
         .hover-effect:hover {
             transform: translateY(-5px);
             transition: transform 0.3s ease;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             cursor: pointer;
         }
     </style>

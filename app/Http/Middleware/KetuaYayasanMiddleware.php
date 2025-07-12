@@ -13,6 +13,7 @@ class KetuaYayasanMiddleware
             return $next($request);
         }
 
-        return redirect('/login')->with('error', 'Bukan ketua yayasan');
+        // Redirect ke home dengan pesan error tanpa logout otomatis
+        return redirect()->route('home')->with('error', 'Akses ditolak, Anda bukan Ketua Yayasan');
     }
 }

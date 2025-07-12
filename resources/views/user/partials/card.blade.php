@@ -4,12 +4,12 @@
         <div class="col-lg-12">
 
             {{-- Featured Post (Berita Terbaru yang Besar) --}}
-            @if(isset($featuredBerita))
+            @if (isset($featuredBerita))
                 <div class="card mb-4">
                     <a href="#" data-bs-toggle="modal" data-bs-target="#beritaModal{{ $featuredBerita->id }}">
-                        @if($featuredBerita->featuredImage)
+                        @if ($featuredBerita->featuredImage)
                             <img class="card-img-top" src="{{ Storage::url($featuredBerita->featuredImage->path) }}"
-                                 alt="{{ $featuredBerita->judul }}" style="height: 400px; object-fit: cover;" />
+                                alt="{{ $featuredBerita->judul }}" style="height: 400px; object-fit: cover;" />
                         @endif
                     </a>
                     <div class="card-body">
@@ -19,8 +19,9 @@
                         </div>
                         <h2 class="card-title">{{ $featuredBerita->judul }}</h2>
                         <p class="card-text">{{ Str::limit($featuredBerita->ringkasan, 150) }}</p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#beritaModal{{ $featuredBerita->id }}">
-                            Read more →
+                        <button class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#beritaModal{{ $featuredBerita->id }}">
+                            Selengkapnya →
                         </button>
                     </div>
                 </div>
@@ -29,13 +30,14 @@
             {{-- Other Posts --}}
             <div class="row">
                 @forelse($beritas->where('id', '!=', optional($featuredBerita)->id)->chunk(2) as $chunk)
-                    @foreach($chunk as $berita)
+                    @foreach ($chunk as $berita)
                         <div class="col-lg-6">
                             <div class="card mb-4">
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#beritaModal{{ $berita->id }}">
-                                    @if($berita->featuredImage)
+                                <a href="#" data-bs-toggle="modal"
+                                    data-bs-target="#beritaModal{{ $berita->id }}">
+                                    @if ($berita->featuredImage)
                                         <img class="card-img-top" src="{{ Storage::url($berita->featuredImage->path) }}"
-                                             alt="{{ $berita->judul }}" style="height: 250px; object-fit: cover;" />
+                                            alt="{{ $berita->judul }}" style="height: 250px; object-fit: cover;" />
                                     @endif
                                 </a>
                                 <div class="card-body">
@@ -45,8 +47,9 @@
                                     </div>
                                     <h2 class="card-title h4">{{ $berita->judul }}</h2>
                                     <p class="card-text">{{ Str::limit($berita->ringkasan, 100) }}</p>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#beritaModal{{ $berita->id }}">
-                                        Read more →
+                                    <button class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#beritaModal{{ $berita->id }}">
+                                        Selengkapnya →
                                     </button>
                                 </div>
                             </div>
@@ -64,8 +67,9 @@
 </div>
 
 {{-- Modal Loop for Semua Berita --}}
-@foreach($beritas as $berita)
-    <div class="modal fade" id="beritaModal{{ $berita->id }}" tabindex="-1" aria-labelledby="beritaModalLabel{{ $berita->id }}" aria-hidden="true">
+@foreach ($beritas as $berita)
+    <div class="modal fade" id="beritaModal{{ $berita->id }}" tabindex="-1"
+        aria-labelledby="beritaModalLabel{{ $berita->id }}" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -75,21 +79,25 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            @if($berita->images && $berita->images->count() > 0)
-                                <div id="carousel{{ $berita->id }}" class="carousel slide mb-3" data-bs-ride="carousel">
+                            @if ($berita->images && $berita->images->count() > 0)
+                                <div id="carousel{{ $berita->id }}" class="carousel slide mb-3"
+                                    data-bs-ride="carousel">
                                     <div class="carousel-inner">
-                                        @foreach($berita->images as $index => $image)
+                                        @foreach ($berita->images as $index => $image)
                                             <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                                                <img src="{{ Storage::url($image->path) }}" class="d-block w-100 rounded"
-                                                     alt="{{ $berita->judul }}" style="max-height: 400px; object-fit: cover;">
+                                                <img src="{{ Storage::url($image->path) }}"
+                                                    class="d-block w-100 rounded" alt="{{ $berita->judul }}"
+                                                    style="max-height: 400px; object-fit: cover;">
                                             </div>
                                         @endforeach
                                     </div>
-                                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ $berita->id }}" data-bs-slide="prev">
+                                    <button class="carousel-control-prev" type="button"
+                                        data-bs-target="#carousel{{ $berita->id }}" data-bs-slide="prev">
                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                         <span class="visually-hidden">Previous</span>
                                     </button>
-                                    <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ $berita->id }}" data-bs-slide="next">
+                                    <button class="carousel-control-next" type="button"
+                                        data-bs-target="#carousel{{ $berita->id }}" data-bs-slide="next">
                                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                         <span class="visually-hidden">Next</span>
                                     </button>
