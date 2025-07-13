@@ -120,7 +120,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/userkegiatan', [UserKegiatanController::class, 'index'])->name('userkegiatan');
             Route::get('/tambahpengajuankegiatan', [UserKegiatanController::class, 'create'])->name('tambahpengajuankegiatan'); // Diubah
             Route::post('/tambahpengajuankegiatan', [UserKegiatanController::class, 'store'])->name('storekegiatan');
-            Route::post('/userkegiatan/{id}/batalkan', [UserKegiatanController::class, 'cancelRequest'])->name('batalkan.kegiatan');
+           Route::post('/user/kegiatan/{id}/batalkan', [UserKegiatanController::class, 'batalkan'])->name('batalkan.kegiatan');
 
             Route::get('/userkunjungan', [UserKunjunganController::class, 'index'])->name('userkunjungan');
             Route::get('/tambahpengajuankunjungan', [UserKunjunganController::class, 'create'])->name('tambahpengajuankunjungan');
@@ -163,8 +163,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [KetuaKegiatanController::class, 'index'])->name('index');
             Route::post('/approve/{id}', [KetuaKegiatanController::class, 'approve'])->name('approve');
             Route::post('/reject/{id}', [KetuaKegiatanController::class, 'reject'])->name('reject');
-            Route::post('/{id}/approve-cancel', [KetuaKegiatanController::class, 'approveCancel'])->name('kegiatan.approvecancel');
-            Route::post('/{id}/reject-cancel', [KetuaKegiatanController::class, 'rejectCancel'])->name('kegiatan.rejectcancel');
+ Route::post('/ketua_yayasan/kegiatan/{id}/setujui-pembatalan', [KetuaKegiatanController::class, 'setujuiPembatalan'])->name('setujuiPembatalan');
+Route::post('/ketua_yayasan/kegiatan/{id}/tolak-pembatalan', [KetuaKegiatanController::class, 'tolakPembatalan'])->name('tolakPembatalan');
+
         });
     Route::prefix('ketua_yayasan/kunjungan')->middleware([KetuaYayasanMiddleware::class])
         ->name('ketua_yayasan.kunjungan.')

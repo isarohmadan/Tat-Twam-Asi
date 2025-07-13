@@ -85,4 +85,28 @@ class UserKegiatanController extends Controller
         return redirect()->route('user.userkegiatan')
             ->with('success', 'Pengajuan kegiatan berhasil dikirim!');
     }
+
+    public function batalkan(Request $request, $id)
+{
+    $request->validate([
+        'alasan_pembatalan' => 'required|string|max:255'
+    ]);
+
+    $kegiatan = Kegiatan::where('id', $id)
+        ->where('user_id', Auth::id())
+        ->where('status_pengajuan', 'disetujui')
+        ->firstOrFail();
+
+    $kegiatan->update([
+        'status_pembatalan' => 'menunggu',
+        'alasan_pembatalan' => $request->alasan_pembatalan
+    ]);
+
+    // (Opsional) Email ke ketua yayasan
+    // Mail::to('ketua@yayasan.com')->send(new PermintaanPembatalanKegiatan($kegiatan));
+
+    return back()->with('success', 'Permintaan pembatalan telah diajukan dan menunggu persetujuan.');
+}
+
+
 }

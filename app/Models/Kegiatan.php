@@ -22,7 +22,10 @@ class Kegiatan extends Model
         'status_pengajuan',
         'user_id',
         'catatan',
-        'alasan_penolakan'
+        'alasan_penolakan',
+        'status_pembatalan',
+        'alasan_pembatalan'
+        
     ];
     protected $dates = [
         'tanggal_mulai',
@@ -33,6 +36,8 @@ class Kegiatan extends Model
     protected $attributes = [
         'status_pengajuan' => 'menunggu'
     ];
+
+    
 
     public function user()
     {

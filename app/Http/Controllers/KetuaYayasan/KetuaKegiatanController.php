@@ -64,24 +64,43 @@ class KetuaKegiatanController extends Controller
         return redirect()->back()->with('success', 'Pengajuan kegiatan telah ditolak');
     }
 
-    public function approveCancel($id)
-    {
-        $kegiatan = Kegiatan::findOrFail($id);
-        $kegiatan->update(['status_pembatalan' => 'disetujui']);
+public function setujuiPembatalan($id)
+{
+    $kegiatan = Kegiatan::findOrFail($id);
 
-        return back()->with('success', 'Pembatalan kegiatan disetujui.');
+    if ($kegiatan->status_pembatalan !== 'menunggu') {
+        return back()->with('error', 'Permintaan pembatalan sudah diproses sebelumnya.');
     }
 
-    public function rejectCancel(Request $request, $id)
-    {
-        $request->validate(['catatan' => 'nullable|string|max:255']);
-        
-        $kegiatan = Kegiatan::findOrFail($id);
-        $kegiatan->update([
-            'status_pembatalan' => 'ditolak',
-            'catatan' => $request->catatan
-        ]);
+    $kegiatan->update([
+        'status_pembatalan' => 'disetujui',
+        'status_pengajuan' => 'dibatalkan', // langsung update status utama jadi dibatalkan
+        'catatan' => null
+    ]);
 
-        return back()->with('success', 'Pembatalan kegiatan ditolak.');
+    return back()->with('success', 'Permintaan pembatalan telah disetujui dan status kegiatan diubah menjadi dibatalkan.');
+}
+
+
+
+public function tolakPembatalan(Request $request, $id)
+{
+    $request->validate([
+        'catatan' => 'nullable|string|max:255'
+    ]);
+
+    $kegiatan = Kegiatan::findOrFail($id);
+
+    if ($kegiatan->status_pembatalan !== 'menunggu') {
+        return back()->with('error', 'Permintaan pembatalan sudah diproses.');
     }
+
+    $kegiatan->update([
+        'status_pembatalan' => 'ditolak',
+        'catatan' => $request->catatan
+    ]);
+
+    return back()->with('success', 'Permintaan pembatalan telah ditolak.');
+}
+ 
 }
