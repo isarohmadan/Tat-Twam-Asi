@@ -117,7 +117,7 @@
                 </div>
             </div>
             <div class="col-lg-6 gsap-history-content">
-                    <h3 class="section-title gsap-history-title m-0 d-inline-block position-relative" style="font-size: 3.5rem; font-family: 'Montserrat', sans-serif; text-align: right; width: 100%;">
+                    <h3 class="section-title gsap-history-title m-0 d-inline-block position-relative content-title-about" style="font-family: 'Montserrat', sans-serif; text-align: right; width: 100%;">
                         <span class="position-relative d-inline-block" style="text-align: right;">
                             Sejarah Singkat
                             <span class="title-underline" style="position: absolute; bottom: -8px; right: 0; width: 0; height: 3px; background-color: #388E3C; border-radius: 2px; display: block;"></span>
@@ -146,20 +146,20 @@
         <div id="visimisi" class="row align-items-center g-5 flex justify-center mx-auto">
             <div class="row align-items-center g-5 mb-5 flex-lg-row-reverse mx-auto p-0">
             <div class="text-center mb-5">
-                <h3 class="section-title gsap-history-title m-0 d-inline-block position-relative pb-0" style="font-size: 3.5rem; font-family: 'Montserrat', sans-serif; margin-bottom: 1.5rem;">
+                <h3 class="section-title gsap-history-title m-0 d-inline-block position-relative pb-0 content-title-about" style=" font-family: 'Montserrat', sans-serif; margin-bottom: 1.5rem;">
                     <span class="position-relative ">
                         Visi dan Misi
                         <span class="title-underline" style="position: absolute; bottom: -8px; left: 0; width: 0; height: 3px; background-color: #388E3C; border-radius: 2px; display: block;"></span>
                     </span>
                 </h3>
             </div>
-                <div class="col-lg-6 gsap-vision-image p-0" style="border: 3px solid var(--default-color);">
-                    <div class="image-container">
+                <div class="col-lg-6 gsap-vision-image" style="border: 3px solid var(--default-color);">
+                    <div class="image-container pr-0 md:pr-3">
                         <img src="{{ asset('images/visimisi.png') }}" class="img-fluid rounded" alt="Visi Misi">
                     </div>
                 </div>
                 <div class="col-lg-6 gsap-vision-content" style="font-family: 'Montserrat', sans-serif;">
-                    <div class="pe-lg-4">
+                    <div class="">
                      
 
                         <!-- Visi Card -->
@@ -249,11 +249,17 @@
         min-height: 100vh;
         align-items: flex-start;
     }
+
+    .content-title-about {
+        font-size: 3.5rem;
+        font-family: 'Montserrat', sans-serif;
+    }
     
     .gsap-vision-image {
         position: sticky;
         top: 80px; /* Slightly reduced for better mobile view */
         height: fit-content;
+        padding: 1rem;
         align-self: flex-start;
     }
     
@@ -268,6 +274,20 @@
         height: auto;
         max-height: 70vh;
         object-fit: contain;
+    }
+    .team-member:nth-child(even) .content-side .member-title {
+        text-align: right;
+    }
+
+    .team-member:nth-child(even) .content-side .member-role {
+        text-align: right;
+    }
+
+    .team-member:nth-child(even) .content-side .member-description {
+        text-align: right;
+        width: 100%;
+        max-width: none;
+        padding-left: 0px;
     }
     
     /* Responsive Adjustments */
@@ -306,6 +326,11 @@
         #visimisi {
             padding: 1.5rem 0;
         }
+
+        .content-title-about {
+        font-size: 2.5rem;
+        font-family: 'Montserrat', sans-serif;
+    }
         
         .gsap-vision-image img {
             max-height: 50vh;
@@ -405,20 +430,7 @@
         color: #22c55e;
     }
 
-    .team-member:nth-child(even) .content-side .member-title {
-        text-align: right;
-    }
 
-    .team-member:nth-child(even) .content-side .member-role {
-        text-align: right;
-    }
-
-    .team-member:nth-child(even) .content-side .member-description {
-        text-align: right;
-        width: 100%;
-        max-width: none;
-        padding-left: 0px;
-    }
 
     .team-member:nth-child(even) .content-side .member-meta {
         text-align: right;
@@ -451,7 +463,20 @@
 
     @media (max-width: 992px) {
 
-        
+        .team-member:nth-child(even) .content-side .member-title {
+        text-align: center;
+    }
+
+    .team-member:nth-child(even) .content-side .member-role {
+        text-align: center;
+    }
+
+    .team-member:nth-child(even) .content-side .member-description {
+        text-align: center;
+        width: 100%;
+        max-width: none;
+        padding-left: 0px;
+    }
         .team-member {
             flex-direction: column !important;
             min-height: auto;
@@ -487,16 +512,16 @@
     }
 
     @media (max-width: 768px) {
-        .team-member:nth-child(even) .content-side .member-title {
-        text-align: center;
+    .team-member:nth-child(even) .content-side .member-title {
+        text-align: center !important;
     }
 
     .team-member:nth-child(even) .content-side .member-role {
-        text-align: center;
+        text-align: center !important;
     }
 
     .team-member:nth-child(even) .content-side .member-description {
-        text-align: center;
+        text-align: center !important;
         width: 100%;
         padding-left: 0px;
     }
@@ -1020,6 +1045,10 @@
             text-align: center;
             margin:1rem 0;
         }
+        .content-title-about {
+        font-size: 2rem !important;
+        font-family: 'Montserrat', sans-serif;
+    }
 
         .content-text {
             font-size: 1rem !important;
@@ -1208,7 +1237,6 @@
             ease: "power2.out"
         });
 
-        gsap.from('')
 
         // Vision Mission Section (equivalent to data-aos="fade-left" and "fade-right" data-aos-duration="1200")
         gsap.from('.gsap-vision-image', {

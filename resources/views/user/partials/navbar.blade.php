@@ -461,8 +461,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         Pengajuan
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="pengajuanDropdown">
-                        <li><a class="dropdown-item" href="{{ route('userkegiatan') }}">Kegiatan</a></li>
-                        <li><a class="dropdown-item" href="{{ route('userkunjungan') }}">Kunjungan</a></li>
+                        <li><a class="dropdown-item" href="{{ route('user.userkegiatan') }}">Kegiatan</a></li>
+                        <li><a class="dropdown-item" href="{{ route('user.userkunjungan') }}">Kunjungan</a></li>
                     </ul>
                 </li>
 

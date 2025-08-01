@@ -40,14 +40,14 @@
                           </div>
                       @endif
                   </a>
-                  <div class="card-body d-flex flex-column">
+                  <div class="card-body d-flex flex-column" style="font-family: 'Montserrat', sans-serif;">
                       <div class="small text-muted mb-2 gsap-card-date" style="opacity: 0; transform: translateY(10px);">
                           {{ \Carbon\Carbon::parse($berita->tanggal_publikasi)->locale('id')->translatedFormat('j F Y') }}
                       </div>
                       <h5 class="card-title gsap-card-title" style="opacity: 0; transform: translateY(15px);">
                           {{ $berita->judul }}
                       </h5>
-                      <p class="card-text gsap-card-text" style="opacity: 0; transform: translateY(20px);">
+                      <p class="card-text gsap-card-text" style="opacity: 0; transform: translateY(20px); font-size: 14px;">
                           {{ Str::limit($berita->ringkasan, 100) }}
                       </p>
                       <button class="btn gsap-card-btn mt-auto" data-bs-toggle="modal"
@@ -223,7 +223,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             @if ($berita->images && $berita->images->count() > 0)
-                                <div id="carousel{{ $berita->id }}" class="carousel slide mb-4 gsap-modal-carousel"
+                                <div id="carousel{{ $berita->id }}" class="carousel mb-4"
                                     data-bs-ride="carousel" style="border-radius: 12px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1);">
                                     <div class="carousel-inner">
                                         @foreach ($berita->images as $index => $image)
@@ -251,18 +251,18 @@
                                 </div>
                             @endif
 
-                            <h2 class="mb-3 gsap-modal-title" style="color: #2c3e50; font-weight: 700; line-height: 1.3;">
+                            <h2 class="mb-3 " style="color: #2c3e50; font-weight: 700; line-height: 1.3;">
                                 {{ $berita->judul }}
                             </h2>
-                            <div class="text-muted mb-4 gsap-modal-date" style="font-size: 0.95rem; font-weight: 500;">
+                            <div class="text-muted mb-4 " style="font-size: 0.95rem; font-weight: 500;">
                                 <i class="bi bi-calendar3 me-2"></i>
                                 {{-- Menampilkan tanggal dengan format F j, Y --}}
                                 {{ $berita->tanggal_publikasi ? $berita->tanggal_publikasi->format('F j, Y') : 'Tanggal tidak tersedia' }}
                             </div>
-                            <div class="fs-5 mb-4 fw-semibold gsap-modal-summary" style="color: #34495e; line-height: 1.6; padding: 1.5rem; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #388E3C;">
+                            <div class="fs-5 mb-4 fw-semibold " style="color: #34495e; line-height: 1.6; padding: 1.5rem; background: #f8f9fa; border-radius: 12px; border-left: 4px solid #388E3C;">
                                 {{ $berita->ringkasan }}
                             </div>
-                            <div class="fs-6 gsap-modal-content" style="line-height: 1.8; color: #2c3e50;">
+                            <div class="fs-6 " style="line-height: 1.8; color: #2c3e50;">
                                 {!! nl2br(e($berita->isi)) !!}
                             </div>
                         </div>

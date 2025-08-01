@@ -138,7 +138,7 @@
         }
         .banner-container {
             position: relative;
-            margin-bottom: 2rem;
+            margin: 5rem 0 2rem 0;
         }
 
         .bannerSwiper {
@@ -242,7 +242,7 @@
             border-color: #388E3C;
         }
         .swiper{
-            padding: 20px;
+            padding: 0px 0 40px !important;
         }
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -288,16 +288,43 @@
     </style>
 
     <!-- Swiper Initialization Script -->
-    <script>
+     <script>
+
+        
+function galleryOpenModal(src, alt) {
+
+                const modal = document.getElementById('galleryModal');
+                const modalImg = document.getElementById('galleryModalImage');
+                modalImg.src = src;
+                modalImg.alt = alt;
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                
+                // Trigger reflow
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                }, 10);
+        }
+        
+        function galleryCloseModal() {
+            const modal = document.getElementById('galleryModal');
+            modal.style.opacity = '0';
+            
+            setTimeout(() => {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
         // Main GSAP and ScrollTrigger initialization
         document.addEventListener('DOMContentLoaded', function() {
+
+
             // Register ScrollTrigger plugin if available
             if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.registerPlugin(ScrollTrigger);
                 
                 // Function to initialize all title underlines
                 const initTitleUnderlines = () => {
-                    console.log('Initializing title underlines...');
                     
                     // Animate section title underlines
                     document.querySelectorAll('.section-title').forEach((title, i) => {
@@ -328,7 +355,6 @@
                             }
                         });
                         
-                        console.log(`Initialized underline for ${title.textContent.trim()}`);
                     });
                 };
                 
@@ -449,7 +475,6 @@
                 // Event callbacks
                 on: {
                     init: function() {
-                        console.log('Swiper initialized');
                         // GSAP animation for initial slide
                         if (typeof gsap !== 'undefined') {
                             gsap.fromTo(this.slides[this.activeIndex].querySelector('.banner-image'), {
@@ -597,15 +622,17 @@
                 });
             }
         });
+     
     </script>
-@endsection
+ 
 
-@section('content')
+ @endsection
+ @section('content')
     @include('user.partials.about')
 
     <!-- Dokumentasi Kegiatan Section -->
     <section class="">
-        <div class="container">
+        <div class="container-fluid">
             <div class="text-center mb-3">
                 <div class="title-wrapper" style="display: inline-block; position: relative; margin-bottom: 30px;">
                     <h2 class="fw-bold section-title m-0 d-inline-block position-relative pb-0" style="font-family: 'Montserrat', sans-serif; color: var(--text-dark);">
@@ -625,22 +652,21 @@
     </section>
 
     <!-- Google Maps Embed Section -->
-    <section id="lokasi" class="py-5 bg-light">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h3 class="fw-bold section-title m-0 d-inline-block position-relative" style="font-family: 'Montserrat', sans-serif; font-size: 30px; color: #388E3C;">
-                    <span class="position-relative">
-                        Lokasi Kami
-                        <span class="title-underline" style="position: absolute; bottom: -8px; left: 0; width: 0; height: 3px; background-color: #388E3C; border-radius: 2px; display: block;"></span>
-                    </span>
-                </h3>
-                <div class="mx-auto" style="width: 100px; height: 2px; background-color: #388E3C; margin: 10px auto 20px;"></div>
-            </div>
+    <section id="lokasi" class="py-5 bg-white">
+        <div class="">
+                     <div class="title-wrapper  w-100 text-center" style="display: inline-block; position: relative; margin-bottom: 30px;">
+                    <h2 class="fw-bold section-title m-0 d-inline-block position-relative pb-0" style="font-family: 'Montserrat', sans-serif; color: var(--text-dark);">
+                        <span class="position-relative pb-0">
+                            Lokasi Kami
+                            <span class="title-underline" style="position: absolute; bottom: -8px; left: 0; width: 0; height: 3px; background-color: #388E3C; border-radius: 2px; display: block;"></span>
+                        </span>
+                    </h2>
+                </div>
 
-            <div class="row mt-4">
+            <div class="row-cang mt-4">
                 <!-- Kolom Kiri - Peta -->
-                <div class="col-md-6 mb-4">
-                    <div class="map-responsive" style="border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div class="col-lg-6 parent-map-responsive">
+                    <div class="map-responsive" style="">
                         <iframe
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3944.2912655050854!2d115.22401457482862!3d-8.66382529138366!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd2408e79748df7%3A0xd8e1edc529646a83!2sPanti%20Asuhan%20Tat%20Twam%20Asi!5e0!3m2!1sid!2sid!4v1749219181720!5m2!1sid!2sid"
                             width="100%" height="400" style="border:0;" 
@@ -648,90 +674,446 @@
                         </iframe>
                     </div>
                 </div>
-
-              
+                <div class=" gallery-section ">
+                    <div class="gallery-container">
+                   
+                        <div class="gallery-masonry">
+                            @php
+                                $galleryItems = [
+                                    ['src' => 'images/unnamed.webp', 'alt' => 'Gallery 1'],
+                                    ['src' => 'images/unnamed (1).webp', 'alt' => 'Gallery 2'],
+                                    ['src' => 'images/unnamed (2).webp', 'alt' => 'Gallery 3'],
+                                    ['src' => 'images/unnamed (3).webp', 'alt' => 'Gallery 4'],
+                                    ['src' => 'images/unnamed (4).webp', 'alt' => 'Gallery 5'],
+                                    ['src' => 'images/unnamed (4).webp', 'alt' => 'Gallery 6'],
+                                    ['src' => 'images/unnamed (5).webp', 'alt' => 'Gallery 7'],
+                                    ['src' => 'images/unnamed (6).webp', 'alt' => 'Gallery 8'],
+                                    ['src' => 'images/unnamed (7).webp', 'alt' => 'Gallery 9'],
+                                    ['src' => 'images/unnamed (8).webp', 'alt' => 'Gallery 10'],
+                                    ['src' => 'images/unnamed (9).webp', 'alt' => 'Gallery 11'],
+                                ];
+                            @endphp
+                            
+                            @foreach($galleryItems as $index => $item)
+                            <div class="gallery-item" onclick="galleryOpenModal('{{ asset($item['src']) }}', '{{ $item['alt'] }}')">
+                                <div class="gallery-item-content">
+                                    <img src="{{ asset($item['src']) }}" alt="{{ $item['alt'] }}" loading="lazy">
+                                    <div class="gallery-item-overlay">
+                                        <i class="fas fa-search-plus"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div> 
+                </div>
+            </div>
+                  
+    <!-- Gallery Modal -->
+    <div id="galleryModal" class="gallery-modal">
+        <span class="gallery-modal-close" onclick="galleryCloseModal()">&times;</span>
+        <img class="gallery-modal-content" id="galleryModalImage">
+    </div>
             </div>
         </div>
+        <!-- card  -->
     </section>
 
-    <!-- Enhanced Styles for GSAP animations -->
     <style>
-        .map-responsive {
-            overflow: hidden;
-            padding-bottom: 56.25%;
-            position: relative;
-            height: 0;
-        }
 
-        .map-responsive iframe {
-            left: 0;
-            top: 0;
-            height: 100%;
+        .row-cang {
+            grid-template-columns: repeat(2, 1fr);
+            display: grid;
+            gap: 1rem;
+        }
+        /* Gallery Section Specific Styles */
+        .gallery-section {
             width: 100%;
-            position: absolute;
+        }
+        
+        .gallery-container {
+            min-height: 100vh;
+        }
+        
+        .gallery-title {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .gallery-masonry {
+            column-count: 2;
+            column-gap: 15px;
+        }
+        
+        .gallery-item {
+            break-inside: avoid;
+            margin-bottom: 15px;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .gallery-item-content {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .gallery-item-content img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
             transition: transform 0.3s ease;
         }
+        
+        .gallery-item:hover .gallery-item-content {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .gallery-item-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .gallery-item:hover .gallery-item-overlay {
+            opacity: 1;
+        }
+        
+        .gallery-item-overlay i {
+            color: white;
+            font-size: 2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover .gallery-item-overlay i {
+            transform: scale(1.2);
+        }
+        
+        /* Gallery Modal */
+        .gallery-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .gallery-modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+        }
+        
+        .gallery-modal-content {
+            max-width: 90%;
+            max-height: 90vh;
+            width: auto;
+            height: auto;
+            border-radius: 8px;
+            animation: galleryZoomIn 0.3s;
+        }
+        
+        .gallery-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 1001;
+        }
+        
+        .gallery-modal-close:hover {
+            color: #bbb;
+        }
+        
+        @keyframes galleryZoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .row-cang {
+                gap: 0.5rem;
+            }
+            .gallery-masonry {
+                column-count: 2;
+                column-gap: 5px;
+            }
+            
+            .gallery-item-overlay i {
+                font-size: 1.5rem;
+            }
+            .gallery-item {
+                margin-bottom: 5px;
+            }
+        }
+        
+        /* Reset some styles that might conflict with card.blade.php */
+        .gallery-section .card,
+        .gallery-section .card-body,
+        .gallery-section .card-title,
+        .gallery-section .card-text {
+            all: revert;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+    
+        .mt-4 {
+            margin-top: 1.5rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* PERBAIKAN STICKY MAP */
+        .sticky-map-container {
+            position: sticky;
+            top: 20px;
+            height: 80vh; /* Gunakan vh untuk height yang konsisten */
+            max-height: 600px;
+            min-height: 400px;
+            z-index: 10; /* Tambahkan z-index */
+        }
+        
+        /* PERBAIKAN MAP DENGAN ASPECT RATIO */
+        .parent-map-responsive {
+            width: 100%;
+            /* Remove fixed 100vh height */
+        }
+        
+        .map-responsive {
+            position: sticky;
+            top: 20px;
+            width: 100%;
+            /* Gunakan aspect ratio yang konsisten */
+            aspect-ratio: 4/3; /* Rasio 4:3 (landscape) */
+            max-height: 70vh; /* Batasi tinggi maksimal */
+            min-height: 400px; /* Tinggi minimal */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: #f0f0f0; /* Fallback background */
+        }
+        
+        .map-responsive iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 12px;
+        }
+        
+        /* Gallery Container - Beri height yang cukup untuk scrolling */
+        .gallery-container {
+            min-height: 120vh; /* Pastikan ada konten untuk di-scroll */
+            overflow: hidden;
+        }
+        
+        .masonry-grid {
+            column-count: 2;
+            column-gap: 15px;
+            column-fill: balance;
+        }
+        
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 15px;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .masonry-content {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .masonry-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .masonry-content img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        .masonry-content:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Masonry overlay */
+        .masonry-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .masonry-overlay i {
+            color: white;
+            font-size: 2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .masonry-item:hover .masonry-overlay {
+            opacity: 1;
+        }
+        
+        .masonry-item:hover .masonry-overlay i {
+            transform: scale(1.2);
+        }
+        
 
-        .map-responsive:hover iframe {
-            transform: scale(1.02);
+  
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+        }
+        
+        @keyframes zoomIn {
+            from {transform: scale(0.8);}
+            to {transform: scale(1);}
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 1001;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
         }
 
-        /* Enhanced professional styling */
-        .carousel-control-prev,
-        .carousel-control-next {
-            transition: all 0.3s ease;
-        }
 
-        .carousel-control-prev:hover,
-        .carousel-control-next:hover {
-            background: rgba(0,0,0,0.1);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
+        
+        /* Responsive */
+        @media (max-width: 991.98px) {
+            .col-6 {
+                width: 100%;
+            }
+            
+            .sticky-map-container {
+                position: relative;
+                top: auto;
+                height: 400px;
+                margin-bottom: 20px;
+            }
+            
+            .gallery-container {
+                min-height: auto;
+            }
+            
+            .masonry-grid {
+                column-count: 2;
+            }
         }
-
-        .banner-image {
-            transition: all 0.4s ease;
+        
+        @media (max-width: 768px) {
+            .masonry-overlay i {
+                font-size: 1.5rem;
+            }
+            
+            .row-cang {    
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1rem;
+            }
+            
+            .map-responsive {
+            aspect-ratio: 4/3;
+            max-height: 40vh;
+            min-height: 250px;
         }
-
-        .carousel-item.active .banner-image:hover {
-            transform: scale(1.05) !important;
-        }
-
-        /* Professional hover effects */
-        .gsap-contact-item:hover {
-            color: #388E3C;
-            transition: color 0.3s ease;
-        }
-
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Enhanced shadow effects */
-        .toast {
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.08) !important;
-        }
-
-        /* Loading animation for images */
-        @keyframes shimmer {
-            0% { background-position: -200px 0; }
-            100% { background-position: calc(200px + 100%) 0; }
-        }
-
-        .banner-image {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200px 100%;
-            animation: shimmer 1.5s infinite linear;
-        }
+        
     </style>
+
+
 @endsection
 
 @section('scripts')
     <script>
+       
+
         // Wait for the document to be fully loaded
         document.addEventListener('DOMContentLoaded', function() {
+             // Gallery Modal Functions
+     
+        
+        // Close modal when clicking outside the image
+        document.getElementById('galleryModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                galleryCloseModal();
+            }
+        });
+        
+        // Close with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                galleryCloseModal();
+            }
+        });
             // Check if GSAP is loaded
             if (typeof gsap !== 'undefined' && gsap) {
                 // Register ScrollTrigger plugin
@@ -940,22 +1322,4 @@
         }, { once: true }); // Ensure this only runs once
     </script>
     
-    <style>
-        /* Ensure map container has proper dimensions */
-        .map-responsive {
-            overflow: hidden;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            position: relative;
-            height: 0;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .map-responsive iframe {
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100%;
-            position: absolute;
-        }
-    </style>
 @endsection
