@@ -46,97 +46,98 @@
 @endsection
 
 @section('content')
-    <div class="container-fluid">
-        <h1 class="h3 mb-2 text-gray-800">Pengajuan Kunjungan</h1>
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
+    <div class="my-3 p-3 bg-body rounded" style="box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 -4px 6px rgba(0, 0, 0, 0.1);">
+        <h2 class="fw-bold">Pengajuan Kunjungan</h2>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active">Pengajuan Kunjungan</li>
+        </ol>
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+        <div class="mb-3">
+            <a href="{{ route('admin.jadwal.index') }}" class="btn btn-primary">
+                <i class="fas fa-calendar-alt"></i> Lihat Jadwal
+            </a>
+        </div>
 
-                <!-- Pencarian Otomatis -->
-                <div class="pb-3">
-                    <form class="d-flex" action="{{ route('admin.kunjungan.index') }}" method="GET" id="searchForm">
-                        <input class="form-control me-1" type="search" name="katakunci" id="katakunci"
-                            value="{{ Request::get('katakunci') }}" placeholder="Masukkan kata kunci" aria-label="Search"
-                            oninput="this.form.submit()">
-                    </form>
-                </div>
+        <!-- Pencarian Otomatis -->
+        <div class="pb-3">
+            <form class="d-flex" action="{{ route('admin.kunjungan.index') }}" method="GET" id="searchForm">
+                <input class="form-control me-1" type="search" name="katakunci" id="katakunci"
+                    value="{{ Request::get('katakunci') }}" placeholder="Masukkan kata kunci" aria-label="Search"
+                    oninput="this.form.submit()">
+            </form>
+        </div>
 
-                <!-- Tabel Data Kunjungan -->
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Pengaju</th>
-                                <th>Nama</th>
-                                <th>Tujuan Kunjungan</th>
-                                <th>Instansi</th>
-                                <th>Tanggal Kunjungan</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                                <th>Detail</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($kunjungans as $kunjungan)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $kunjungan->user->name ?? 'N/A' }}</td>
-                                    <td>{{ $kunjungan->nama_pengaju }}</td>
-                                    <td>{{ $kunjungan->tujuan_kunjungan }}</td>
-                                    <td>{{ $kunjungan->instansi }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d/m/Y') }}</td>
-                                    <td>
-                                        <span
-                                            class="badge 
+        <!-- Tabel Data Kunjungan -->
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Tujuan Kunjungan</th>
+                        <th>Instansi</th>
+                        <th>Tanggal Kunjungan</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                        <th>Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($kunjungans as $kunjungan)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $kunjungan->nama_pengaju }}</td>
+                            <td>{{ $kunjungan->tujuan_kunjungan }}</td>
+                            <td>{{ $kunjungan->instansi }}</td>
+                            <td>{{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d/m/Y') }}</td>
+                            <td>
+                                <span
+                                    class="badge 
                                     @if ($kunjungan->status == 'disetujui') bg-success
                                     @elseif($kunjungan->status == 'ditolak') bg-danger
                                     @else bg-warning @endif">
-                                            {{ ucfirst($kunjungan->status) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="text-muted">
-                                            @if ($kunjungan->status == 'menunggu')
-                                                Menunggu verifikasi oleh ketua yayasan
-                                            @elseif ($kunjungan->status == 'disetujui')
-                                                Disetujui
-                                            @elseif ($kunjungan->status == 'ditolak')
-                                                Ditolak
-                                            @else
-                                                Status tidak diketahui
-                                            @endif
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#detailModal{{ $kunjungan->id }}">
-                                            <i class="fas fa-info-circle"></i> Detail
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <!-- Pagination -->
-                <div class="d-flex justify-content-between">
-                    <div>
-                        Showing {{ $kunjungans->firstItem() }} to {{ $kunjungans->lastItem() }} of
-                        {{ $kunjungans->total() }} entries
-                    </div>
-                    <div>
-                        {{ $kunjungans->appends(['katakunci' => Request::get('katakunci')])->links('pagination::bootstrap-4') }}
-                    </div>
-                </div>
+                                    {{ ucfirst($kunjungan->status) }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="text-muted">
+                                    @if ($kunjungan->status == 'menunggu')
+                                        Menunggu verifikasi oleh ketua yayasan
+                                    @elseif ($kunjungan->status == 'disetujui')
+                                        Disetujui
+                                    @elseif ($kunjungan->status == 'ditolak')
+                                        Ditolak
+                                    @else
+                                        Status tidak diketahui
+                                    @endif
+                                </span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#detailModal{{ $kunjungan->id }}">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between">
+            <div>
+                Menampilkan {{ $kunjungans->firstItem() }} Sampai {{ $kunjungans->lastItem() }} Dari
+                {{ $kunjungans->total() }} Data Total
+            </div>
+            <div>
+                {{ $kunjungans->appends(['katakunci' => Request::get('katakunci')])->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </div>
-
     <!-- Modals -->
     @foreach ($kunjungans as $kunjungan)
         <!-- Detail Modal -->
@@ -154,7 +155,7 @@
                                 <h6 class="fw-bold">Informasi Pengaju</h6>
                                 <hr>
                                 <div class="mb-3">
-                                    <label>Nama Pengaju:</label>
+                                    <label>Nama:</label>
                                     <p>{{ $kunjungan->nama_pengaju }}</p>
                                 </div>
                                 <div class="mb-3">

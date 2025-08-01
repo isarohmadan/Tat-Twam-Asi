@@ -446,7 +446,6 @@
   }
   
   .footer .footer-top {
-    padding-top: 50px;
     border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
   }
   
@@ -716,7 +715,6 @@
   .section {
     color: var(--default-color);
     background-color: var(--background-color);
-    padding: 60px 0;
     scroll-margin-top: 100px;
     overflow: clip;
   }
@@ -982,8 +980,9 @@
   }
   
   .about ul li {
-    padding: 5px 0;
+    padding: 10px 15px ;
     display: flex;
+    gap:1rem; 
     align-items: center;
   }
   

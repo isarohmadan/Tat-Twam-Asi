@@ -46,8 +46,8 @@ a {
 
 button {
 	border-radius: 20px;
-	border: 1px solid #FF4B2B;
-	background-color: #FF4B2B;
+	border: 1px solid #388E3C;
+	background-color: #388E3C;
 	color: #FFFFFF;
 	font-size: 12px;
 	font-weight: bold;
@@ -160,12 +160,11 @@ input {
 }
 
 .overlay {
-	background: #FF416C;
-	background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
-	background: linear-gradient(to right, #FF4B2B, #FF416C);
-	background-repeat: no-repeat;
+	background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+              url('/images/sejarah.jpg');
 	background-size: cover;
-	background-position: 0 0;
+	background-position: center;
+	background-repeat: no-repeat;
 	color: #FFFFFF;
 	position: relative;
 	left: -100%;

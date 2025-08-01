@@ -20,7 +20,7 @@ class AnakExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $this->no++, // ⬅️ Isi kolom No secara increment
-            $row->nik,
+            "$row->nik",
             $row->nama,
             $row->nama_orangtua,
             \Carbon\Carbon::parse($row->tanggal_lahir)->format('d-m-Y'),

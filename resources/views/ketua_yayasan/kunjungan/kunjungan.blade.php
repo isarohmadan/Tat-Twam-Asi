@@ -46,16 +46,17 @@
 @endsection
 
 @section('content')
-    <div class="container-fluid">
-        <h1 class="h3 mb-2 text-gray-800">Pengajuan Kunjungan</h1>
-
+    <div class="my-3 p-3 bg-body rounded" style="box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 -4px 6px rgba(0, 0, 0, 0.1);">
+        <h2 class="fw-bold">Pengajuan Kunjungan</h2>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active">Pengajuan Kunjungan</li>
+        </ol>
         <!-- Tombol Lihat Jadwal -->
         <div class="mb-3">
             <a href="{{ route('ketua_yayasan.jadwal.index') }}" class="btn btn-primary">
                 <i class="fas fa-calendar-alt"></i> Lihat Jadwal
             </a>
         </div>
-
         <div class="card shadow mb-4">
             <div class="card-body">
                 @if (session('success'))
@@ -63,7 +64,6 @@
                         {{ session('success') }}
                     </div>
                 @endif
-
                 <div class="pb-3">
                     <form class="d-flex" action="" method="get">
                         <input class="form-control me-1" type="search" name="katakunci"
@@ -71,7 +71,6 @@
                         <button class="btn btn-secondary" type="submit">Cari</button>
                     </form>
                 </div>
-
                 <div class="table-responsive">
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
@@ -85,6 +84,7 @@
                                 <th>Status</th>
                                 <th>Aksi</th>
                                 <th>Detail</th>
+                                <th>Pembatalan</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -99,9 +99,10 @@
                                     <td>
                                         <span
                                             class="badge 
-                                    @if ($kunjungan->status == 'disetujui') bg-success
-                                    @elseif($kunjungan->status == 'ditolak') bg-danger
-                                    @else bg-warning @endif">
+                                            @if ($kunjungan->status == 'disetujui') bg-success
+                                            @elseif($kunjungan->status == 'ditolak') bg-danger
+                                            @elseif($kunjungan->status == 'dibatalkan') bg-danger
+                                            @else bg-warning @endif">
                                             {{ ucfirst($kunjungan->status) }}
                                         </span>
                                     </td>
@@ -128,6 +129,27 @@
                                             <i class="fas fa-info-circle"></i> Detail
                                         </button>
                                     </td>
+                                    <td>
+                                        @if ($kunjungan->status_pembatalan == 'menunggu')
+                                            <!-- Tombol Setujui dan Tolak Pembatalan hanya muncul jika status_pembatalan = 'menunggu' -->
+                                            <div class="mt-2">
+                                                <button type="button" class="btn btn-outline-success btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#approveCancelModal{{ $kunjungan->id }}">
+                                                    Setujui Pembatalan
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#rejectCancelModal{{ $kunjungan->id }}">
+                                                    Tolak Pembatalan
+                                                </button>
+                                            </div>
+                                        @elseif ($kunjungan->status_pembatalan == 'disetujui')
+                                            <span class="badge bg-success d-block mt-2">Dibatalkan</span>
+                                        @elseif ($kunjungan->status_pembatalan == 'ditolak')
+                                            <span class="badge bg-danger d-block mt-2">Pembatalan Ditolak</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -136,61 +158,100 @@
             </div>
         </div>
     </div>
-
-    <!-- Modals -->
     @foreach ($kunjungans as $kunjungan)
         <!-- Approve Modal -->
-        <div class="modal fade" id="approveModal{{ $kunjungan->id }}" tabindex="-1" aria-labelledby="approveModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="approveModal{{ $kunjungan->id }}" tabindex="-1">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="{{ route('ketua_yayasan.kunjungan.approve', $kunjungan->id) }}" method="POST">
-                        @csrf
+                <form action="{{ route('ketua_yayasan.kunjungan.approve', $kunjungan->id) }}" method="POST">@csrf
+                    <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="approveModalLabel">Setujui Pengajuan Kunjungan</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <h5 class="modal-title">Setujui Pengajuan</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="catatan" class="form-label">Catatan (Opsional)</label>
-                                <textarea class="form-control" name="catatan" id="catatan" rows="3"></textarea>
-                            </div>
+                            <label>Catatan (Opsional):</label>
+                            <textarea class="form-control" name="catatan" rows="3"></textarea>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                             <button type="submit" class="btn btn-success">Setujui</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
-
         <!-- Reject Modal -->
-        <div class="modal fade" id="rejectModal{{ $kunjungan->id }}" tabindex="-1" aria-labelledby="rejectModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="rejectModal{{ $kunjungan->id }}" tabindex="-1">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="{{ route('ketua_yayasan.kunjungan.reject', $kunjungan->id) }}" method="POST">
-                        @csrf
+                <form action="{{ route('ketua_yayasan.kunjungan.reject', $kunjungan->id) }}" method="POST">@csrf
+                    <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="rejectModalLabel">Tolak Pengajuan Kunjungan</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <h5 class="modal-title">Tolak Pengajuan</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="alasan_penolakan" class="form-label">Alasan Penolakan</label>
-                                <textarea class="form-control" name="alasan_penolakan" id="alasan_penolakan" rows="3" required></textarea>
-                            </div>
+                            <label>Alasan Penolakan</label>
+                            <textarea class="form-control" name="alasan_penolakan" rows="3" required></textarea>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                             <button type="submit" class="btn btn-danger">Tolak</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @if ($kunjungan->status_pembatalan == 'menunggu')
+            <!-- Modal Setujui Pembatalan -->
+            <div class="modal fade" id="approveCancelModal{{ $kunjungan->id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <form action="{{ route('ketua_yayasan.kunjungan.setujuiPembatalan', $kunjungan->id) }}"
+                        method="POST">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Setujui Pembatalan</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Yakin menyetujui pembatalan?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">Setujui</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
-
+            <!-- Modal Tolak Pembatalan -->
+            <div class="modal fade" id="rejectCancelModal{{ $kunjungan->id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <form action="{{ route('ketua_yayasan.kunjungan.tolakPembatalan', $kunjungan->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Tolak Pembatalan</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <label>Catatan (Opsional):</label>
+                                <textarea class="form-control" name="catatan" rows="3"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">Tolak</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
+    @endforeach
+    <!-- Modals -->
+    @foreach ($kunjungans as $kunjungan)
         <!-- Detail Modal -->
         <div class="modal fade" id="detailModal{{ $kunjungan->id }}" tabindex="-1" aria-labelledby="detailModalLabel"
             aria-hidden="true">
@@ -206,7 +267,7 @@
                                 <h6 class="fw-bold">Informasi Pengaju</h6>
                                 <hr>
                                 <div class="mb-3">
-                                    <label>Nama Pengaju:</label>
+                                    <label>Nama:</label>
                                     <p>{{ $kunjungan->nama_pengaju }}</p>
                                 </div>
                                 <div class="mb-3">
@@ -248,12 +309,16 @@
                         <div class="mb-3">
                             <label>Status Pengajuan:</label>
                             <p>
-                                <span
-                                    class="badge 
-                            @if ($kunjungan->status == 'disetujui') bg-success
-                            @elseif($kunjungan->status == 'ditolak') bg-danger
-                            @else bg-warning @endif">
-                                    {{ ucfirst($kunjungan->status) }}
+                                <span class="text-muted">
+                                    @if ($kunjungan->status == 'menunggu')
+                                        Menunggu verifikasi oleh ketua yayasan
+                                    @elseif ($kunjungan->status == 'disetujui')
+                                        Disetujui
+                                    @elseif ($kunjungan->status == 'ditolak')
+                                        Ditolak
+                                    @else
+                                        Status tidak diketahui
+                                    @endif
                                 </span>
                             </p>
                         </div>
@@ -278,27 +343,13 @@
         </div>
     @endforeach
 @endsection
-
 @section('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
     <script>
         $(document).ready(function() {
-            // Inisialisasi DataTable
             $('#dataTable').DataTable();
-
-            // Inisialisasi tooltip
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-
-            // Debug modal
-            console.log('Script initialized');
-            $('[data-bs-toggle="modal"]').click(function() {
-                console.log('Modal button clicked:', $(this).data('bs-target'));
-            });
         });
     </script>
 @endsection

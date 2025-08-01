@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('biodata', function (Blueprint $table) {
-            $table->string('foto')->nullable(); // ✅ Tambahkan ini di sini
+        Schema::table('kunjungans', function (Blueprint $table) {
+        $table->string('status_pembatalan')->nullable();
+        $table->text('alasan_pembatalan')->nullable()->after('status_pembatalan');
         });
     }
 
@@ -21,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('biodata', function (Blueprint $table) {
-            $table->dropColumn('foto'); // ✅ Untuk rollback migrasi
+        Schema::table('kunjungans', function (Blueprint $table) {
+            //
         });
     }
 };

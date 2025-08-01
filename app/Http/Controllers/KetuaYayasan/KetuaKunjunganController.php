@@ -58,4 +58,43 @@ class KetuaKunjunganController extends Controller
 
         return redirect()->back()->with('success', 'Pengajuan kunjungan telah ditolak');
     }
+
+    public function setujuiPembatalan($id)
+    {
+        $kunjungan = Kunjungan::findOrFail($id);
+
+        if ($kunjungan->status_pembatalan !== 'menunggu') {
+            return back()->with('error', 'Permintaan pembatalan sudah diproses sebelumnya.');
+        }
+
+        $kunjungan->update([
+            'status_pembatalan' => 'disetujui',
+            'status' => 'dibatalkan', // langsung update status utama jadi dibatalkan
+            'catatan' => null
+        ]);
+
+        return back()->with('success', 'Permintaan pembatalan telah disetujui dan status kegiatan diubah menjadi dibatalkan.');
+    }
+
+
+
+    public function tolakPembatalan(Request $request, $id)
+    {
+        $request->validate([
+            'catatan' => 'nullable|string|max:255'
+        ]);
+
+        $kunjungan = Kunjungan::findOrFail($id);
+
+        if ($kunjungan->status_pembatalan !== 'menunggu') {
+            return back()->with('error', 'Permintaan pembatalan sudah diproses.');
+        }
+
+        $kunjungan->update([
+            'status_pembatalan' => 'ditolak',
+            'catatan' => $request->catatan
+        ]);
+
+        return back()->with('success', 'Permintaan pembatalan telah ditolak.');
+    }
 }

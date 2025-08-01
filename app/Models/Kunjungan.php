@@ -22,7 +22,9 @@ class Kunjungan extends Model
         'status',
         'user_id',
         'catatan',
-        'alasan_penolakan'
+        'alasan_penolakan',
+        'status_pembatalan',
+        'alasan_pembatalan'
     ];
     protected $attributes = [
         'status' => 'menunggu'
