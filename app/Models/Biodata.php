@@ -18,6 +18,9 @@ class Biodata extends Model
         'tanggal_lahir',
         'asal',
         'sekolah',
-        'foto'
+        'foto',
+        'jenis_kelamin', // Jenis kelamin
+        'tanggal_masuk_panti', // Tanggal masuk panti
+        'keterangan', // Keterangan
     ];
 }

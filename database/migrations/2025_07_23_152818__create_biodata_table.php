@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -15,6 +16,10 @@ return new class extends Migration {
             $table->date('tanggal_lahir');
             $table->string('asal')->nullable();
             $table->string('sekolah')->nullable();
+            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan']); // Jenis kelamin
+            $table->date('tanggal_masuk_panti')->nullable(); // Tanggal masuk panti
+            $table->enum('keterangan', ['Yatim', 'Tidak Mampu', 'Piatu', 'Yatim Piatu']); // Keterangan
+            $table->string('foto')->nullable(); // ✅ Tambahkan ini di sini
             $table->timestamps();
         });
     }

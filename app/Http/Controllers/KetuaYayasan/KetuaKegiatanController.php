@@ -12,16 +12,16 @@ use Illuminate\Support\Facades\Mail;
 class KetuaKegiatanController extends Controller
 {
     public function index()
-{
-    $kegiatans = Kegiatan::with('user')
-        ->orderBy('created_at', 'desc')
-        ->get();
-    
-    $jumlahMenungguKegiatan = Kegiatan::where('status_pengajuan', 'menunggu')->count();
-    $jumlahMenungguPembatalan = Kegiatan::where('status_pembatalan', 'menunggu')->count();  // Menampilkan jumlah permintaan pembatalan yang menunggu
+    {
+        $kegiatans = Kegiatan::with('user')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-    return view('ketua_yayasan.kegiatan.kegiatan', compact('kegiatans', 'jumlahMenungguKegiatan', 'jumlahMenungguPembatalan'));
-}
+        $jumlahMenungguKegiatan = Kegiatan::where('status_pengajuan', 'menunggu')->count();
+        $jumlahMenungguPembatalan = Kegiatan::where('status_pembatalan', 'menunggu')->count();  // Menampilkan jumlah permintaan pembatalan yang menunggu
+
+        return view('ketua_yayasan.kegiatan.kegiatan', compact('kegiatans', 'jumlahMenungguKegiatan', 'jumlahMenungguPembatalan'));
+    }
 
     public function approve(Request $request, $id)
     {
@@ -64,43 +64,59 @@ class KetuaKegiatanController extends Controller
         return redirect()->back()->with('success', 'Pengajuan kegiatan telah ditolak');
     }
 
-public function setujuiPembatalan($id)
-{
-    $kegiatan = Kegiatan::findOrFail($id);
+    public function setujuiPembatalan($id)
+    {
+        $kegiatan = Kegiatan::findOrFail($id);
 
-    if ($kegiatan->status_pembatalan !== 'menunggu') {
-        return back()->with('error', 'Permintaan pembatalan sudah diproses sebelumnya.');
+        if ($kegiatan->status_pembatalan !== 'menunggu') {
+            return back()->with('error', 'Permintaan pembatalan sudah diproses sebelumnya.');
+        }
+
+        $kegiatan->update([
+            'status_pembatalan' => 'disetujui',
+            'status_pengajuan' => 'dibatalkan', // langsung update status utama jadi dibatalkan
+            'catatan' => null
+        ]);
+
+        return back()->with('success', 'Permintaan pembatalan telah disetujui dan status kegiatan diubah menjadi dibatalkan.');
     }
 
-    $kegiatan->update([
-        'status_pembatalan' => 'disetujui',
-        'status_pengajuan' => 'dibatalkan', // langsung update status utama jadi dibatalkan
-        'catatan' => null
-    ]);
-
-    return back()->with('success', 'Permintaan pembatalan telah disetujui dan status kegiatan diubah menjadi dibatalkan.');
-}
 
 
+    public function tolakPembatalan(Request $request, $id)
+    {
+        $request->validate([
+            'catatan' => 'nullable|string|max:255'
+        ]);
 
-public function tolakPembatalan(Request $request, $id)
-{
-    $request->validate([
-        'catatan' => 'nullable|string|max:255'
-    ]);
+        $kegiatan = Kegiatan::findOrFail($id);
 
-    $kegiatan = Kegiatan::findOrFail($id);
+        if ($kegiatan->status_pembatalan !== 'menunggu') {
+            return back()->with('error', 'Permintaan pembatalan sudah diproses.');
+        }
 
-    if ($kegiatan->status_pembatalan !== 'menunggu') {
-        return back()->with('error', 'Permintaan pembatalan sudah diproses.');
+        $kegiatan->update([
+            'status_pembatalan' => 'ditolak',
+            'catatan' => $request->catatan
+        ]);
+
+        return back()->with('success', 'Permintaan pembatalan telah ditolak.');
     }
 
-    $kegiatan->update([
-        'status_pembatalan' => 'ditolak',
-        'catatan' => $request->catatan
-    ]);
+    public function markAsCompleted(Request $request, $id)
+    {
+        $kegiatan = Kegiatan::findOrFail($id);
 
-    return back()->with('success', 'Permintaan pembatalan telah ditolak.');
-}
- 
+        // Pastikan status pengajuan sudah 'disetujui' sebelum bisa diubah ke 'terlaksana'
+        if ($kegiatan->status_pengajuan !== 'disetujui') {
+            return back()->with('error', 'Kegiatan harus disetujui sebelum dapat ditandai sebagai terlaksana.');
+        }
+
+        // Update status menjadi 'terlaksana'
+        $kegiatan->update([
+            'status_pengajuan' => 'terlaksana',
+        ]);
+
+        return back()->with('success', 'Kegiatan telah ditandai sebagai terlaksana.');
+    }
 }

@@ -55,6 +55,11 @@
                         {{ session('success') }}
                     </div>
                 @endif
+                <div class="mb-3">
+                    <a href="{{ route('admin.jadwal.index') }}" class="btn btn-primary">
+                        <i class="fas fa-calendar-alt"></i> Lihat Jadwal
+                    </a>
+                </div>
 
                 <!-- Pencarian Otomatis -->
                 <div class="pb-3">
@@ -71,7 +76,6 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Pengaju</th>
                                 <th>Nama</th>
                                 <th>Tujuan Kunjungan</th>
                                 <th>Instansi</th>
@@ -85,7 +89,6 @@
                             @foreach ($kunjungans as $kunjungan)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $kunjungan->user->name ?? 'N/A' }}</td>
                                     <td>{{ $kunjungan->nama_pengaju }}</td>
                                     <td>{{ $kunjungan->tujuan_kunjungan }}</td>
                                     <td>{{ $kunjungan->instansi }}</td>
@@ -154,7 +157,7 @@
                                 <h6 class="fw-bold">Informasi Pengaju</h6>
                                 <hr>
                                 <div class="mb-3">
-                                    <label>Nama Pengaju:</label>
+                                    <label>Nama:</label>
                                     <p>{{ $kunjungan->nama_pengaju }}</p>
                                 </div>
                                 <div class="mb-3">

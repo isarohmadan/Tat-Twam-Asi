@@ -76,4 +76,23 @@ class UserKunjunganController extends Controller
 
         return redirect()->route('user.userkunjungan')->with('success', 'Pengajuan kunjungan berhasil dikirim');
     }
+
+    public function batalkan(Request $request, $id)
+    {
+        $request->validate([
+            'alasan_pembatalan' => 'required|string|max:255'
+        ]);
+
+        $kunjungan = Kunjungan::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->where('status', 'disetujui')
+            ->firstOrFail();
+
+        $kunjungan->update([
+            'status_pembatalan' => 'menunggu',
+            'alasan_pembatalan' => $request->alasan_pembatalan
+        ]);
+
+        return back()->with('success', 'Permintaan pembatalan telah diajukan dan menunggu persetujuan.');
+    }
 }

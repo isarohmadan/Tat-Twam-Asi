@@ -25,7 +25,7 @@ class Kegiatan extends Model
         'alasan_penolakan',
         'status_pembatalan',
         'alasan_pembatalan'
-        
+
     ];
     protected $dates = [
         'tanggal_mulai',
@@ -37,7 +37,12 @@ class Kegiatan extends Model
         'status_pengajuan' => 'menunggu'
     ];
 
-    
+    // Relasi ke tabel kegiatan_photos
+    public function photos()
+    {
+        return $this->hasMany(KegiatanPhoto::class, 'kegiatan_id');
+    }
+
 
     public function user()
     {

@@ -4,10 +4,12 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Kegiatan;
+use App\Models\KegiatanPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Mail\PengajuanBaruNotification;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class UserKegiatanController extends Controller
 {
@@ -20,7 +22,7 @@ class UserKegiatanController extends Controller
     public function create()
     {
         // Ambil rentang tanggal yang sudah disetujui (status = "disetujui") untuk kegiatan
-        $unavailableDates = Kegiatan::where('status_pengajuan', 'disetujui')
+        $unavailableDates = Kegiatan::whereIn('status_pengajuan', ['disetujui', 'terlaksana'])
             ->get(['tanggal_mulai', 'tanggal_selesai']);
 
         // Mengubah rentang tanggal menjadi array dengan format yang dapat digunakan untuk flatpickr
@@ -36,11 +38,21 @@ class UserKegiatanController extends Controller
             ];
         }
 
-        return view('user.kegiatan.tambahpengajuankegiatan', compact('unavailableRanges'));
+        // Cek jika status kegiatan adalah "terlaksana", maka jangan izinkan pemilihan tanggal
+        $statusKegiatan = Kegiatan::where('user_id', Auth::id())->first();
+        $isKegiatanTerlaksana = $statusKegiatan && $statusKegiatan->status_pengajuan == 'terlaksana';
+
+        return view('user.kegiatan.tambahpengajuankegiatan', compact('unavailableRanges', 'isKegiatanTerlaksana'));
     }
 
     public function store(Request $request)
     {
+        // Cek apakah status kegiatan sudah terlaksana
+        $statusKegiatan = Kegiatan::where('user_id', Auth::id())->first();
+        if ($statusKegiatan && $statusKegiatan->status_pengajuan == 'terlaksana') {
+            return back()->with('error', 'Tidak bisa membuat kegiatan baru karena status kegiatan sebelumnya sudah terlaksana.');
+        }
+
         $validated = $request->validate([
             'nama_pengaju' => 'required|string|max:255',
             'alamat' => 'required|string|max:255',
@@ -86,27 +98,87 @@ class UserKegiatanController extends Controller
             ->with('success', 'Pengajuan kegiatan berhasil dikirim!');
     }
 
+
     public function batalkan(Request $request, $id)
-{
-    $request->validate([
-        'alasan_pembatalan' => 'required|string|max:255'
-    ]);
+    {
+        $request->validate([
+            'alasan_pembatalan' => 'required|string|max:255'
+        ]);
 
-    $kegiatan = Kegiatan::where('id', $id)
-        ->where('user_id', Auth::id())
-        ->where('status_pengajuan', 'disetujui')
-        ->firstOrFail();
+        $kegiatan = Kegiatan::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->where('status_pengajuan', 'disetujui')
+            ->firstOrFail();
 
-    $kegiatan->update([
-        'status_pembatalan' => 'menunggu',
-        'alasan_pembatalan' => $request->alasan_pembatalan
-    ]);
+        $kegiatan->update([
+            'status_pembatalan' => 'menunggu',
+            'alasan_pembatalan' => $request->alasan_pembatalan
+        ]);
 
-    // (Opsional) Email ke ketua yayasan
-    // Mail::to('ketua@yayasan.com')->send(new PermintaanPembatalanKegiatan($kegiatan));
+        // (Opsional) Email ke ketua yayasan
+        // Mail::to('tegarprawira350@gmail.com')->send(new PermintaanPembatalanKegiatan($kegiatan));
 
-    return back()->with('success', 'Permintaan pembatalan telah diajukan dan menunggu persetujuan.');
-}
+        return back()->with('success', 'Permintaan pembatalan telah diajukan dan menunggu persetujuan.');
+    }
+
+    public function submitPhoto(Request $request, $id)
+    {
+        $kegiatan = Kegiatan::findOrFail($id);
+
+        // Pastikan status kegiatan adalah 'terlaksana'
+        if ($kegiatan->status_pengajuan !== 'terlaksana') {
+            return back()->with('error', 'Foto hanya bisa dikirim jika status kegiatan telah terlaksana.');
+        }
+
+        // Validasi input foto
+        $validated = $request->validate([
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'required|string',
+            'photos.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Maksimal 2MB per foto
+        ]);
+
+        // Ambil foto yang diupload oleh user
+        $photos = $request->file('photos');
+        $photoPaths = [];
+
+        foreach ($photos as $photo) {
+            // Simpan foto dan ambil path-nya
+            $photoPath = $photo->store('photos', 'public'); // Penyimpanan ke folder 'photos' di storage/app/public
+
+            // Menyimpan data foto ke dalam tabel kegiatan_photos
+            KegiatanPhoto::create([
+                'kegiatan_id' => $kegiatan->id, // Menyimpan ID kegiatan
+                'judul' => $request->judul, // Menyimpan judul foto
+                'deskripsi' => $request->deskripsi, // Menyimpan deskripsi foto
+                'photo_path' => $photoPath, // Menyimpan path foto
+            ]);
+
+            // Logging foto berhasil disimpan
+            Log::debug('Foto berhasil disimpan untuk kegiatan ID: ' . $kegiatan->id, [
+                'judul' => $request->judul,
+                'deskripsi' => $request->deskripsi,
+                'photo_path' => $photoPath
+            ]);
+        }
+
+        return back()->with('success', 'Foto kegiatan telah berhasil dikirim.');
+    }
 
 
+
+    public function showPhotos($kegiatanId)
+    {
+        // Mendapatkan kegiatan berdasarkan ID
+        $kegiatan = Kegiatan::findOrFail($kegiatanId);
+
+        // Pastikan kegiatan memiliki status 'terlaksana' sebelum mengizinkan melihat foto
+        if ($kegiatan->status_pengajuan !== 'terlaksana') {
+            return back()->with('error', 'Foto hanya bisa dilihat jika status kegiatan telah terlaksana.');
+        }
+
+        // Ambil semua foto yang terkait dengan kegiatan ini
+        $photos = KegiatanPhoto::where('kegiatan_id', $kegiatanId)->get();
+
+        return view('user.kegiatan.showPhotos', compact('kegiatan', 'photos'));
+    }
 }

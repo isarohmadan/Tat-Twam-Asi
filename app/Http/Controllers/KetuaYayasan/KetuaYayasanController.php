@@ -20,6 +20,7 @@ class KetuaYayasanController extends Controller
         $kunjungans = \App\Models\Kunjungan::all(); // atau sesuai kebutuhanmu
         $jumlahMenungguKegiatan = \App\Models\Kegiatan::where('status_pengajuan', 'menunggu')->count();
         $kegiatans = \App\Models\Kegiatan::all(); // atau sesuai kebutuhanmu
-        return view('ketua_yayasan.dashboard', compact('data', 'jumlahMenunggu', 'kunjungans', 'kegiatans', 'jumlahMenungguKegiatan'));
+        $jumlahAnak = \App\Models\Biodata::count(); // Misal model Anak
+        return view('ketua_yayasan.dashboard', compact('data', 'jumlahMenunggu', 'kunjungans', 'kegiatans', 'jumlahAnak', 'jumlahMenungguKegiatan'));
     }
 }

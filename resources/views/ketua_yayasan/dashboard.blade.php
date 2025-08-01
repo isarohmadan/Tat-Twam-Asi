@@ -70,11 +70,27 @@
                 </div>
             </a>
         </div>
+
+        <!-- Card Data Anak -->
+        <div class="col-md-4 col-xl-3 mb-4">
+            <a href="{{ route('ketua_yayasan.anak.dataanak') }}" class="text-decoration-none">
+                <div class="card bg-c-purple order-card position-relative shadow-sm rounded hover-effect">
+                    <div class="card-block p-3 text-white">
+                        <h6 class="mb-3">data anak</h6>
+                        <h2 class="d-flex justify-content-between align-items-center ">
+                            <i class="fa fa-child fs-3 me-2"></i>
+                            <span class="fs-4 fw-bold">{{ $jumlahAnak }}</span>
+                        </h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+
     </div>
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-chart-area me-1"></i>
-            Data Setiap Bulan
+            Data Anak Setiap Bulan
         </div>
         <div class="card-body"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
         <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
@@ -94,6 +110,18 @@
             transition: transform 0.3s ease;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             cursor: pointer;
+        }
+
+        .bg-c-yellow {
+            background-color: #f1c40f !important;
+        }
+
+        .bg-c-purple {
+            background-color: #9b59b6 !important;
+        }
+
+        .card {
+            min-height: 140px;
         }
     </style>
 @endsection

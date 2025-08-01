@@ -15,26 +15,25 @@ use Maatwebsite\Excel\Facades\Excel; //library excel
 class AnakController extends Controller
 {
     public function index(Request $request)
-    {
-        // Mengambil data anak berdasarkan kata kunci (jika ada)
-        $katakunci = $request->get('katakunci');
+{
+    $katakunci = $request->get('katakunci');
+    $data = Biodata::when($katakunci, function ($query) use ($katakunci) {
+        return $query->where('nama', 'like', '%' . $katakunci . '%')
+            ->orWhere('nama_orangtua', 'like', '%' . $katakunci . '%')
+            ->orWhere('asal', 'like', '%' . $katakunci . '%')
+            ->orWhere('sekolah', 'like', '%' . $katakunci . '%');
+    })->paginate(25);
 
-        // Query untuk mengambil data berdasarkan kata kunci dengan pencarian di beberapa kolom
-        $data = Biodata::when($katakunci, function ($query) use ($katakunci) {
-            return $query->where('nama', 'like', '%' . $katakunci . '%')
-                ->orWhere('nama_orangtua', 'like', '%' . $katakunci . '%')
-                ->orWhere('asal', 'like', '%' . $katakunci . '%')
-                ->orWhere('sekolah', 'like', '%' . $katakunci . '%');
-        })->paginate(25); // Pagination dengan 25 data per halaman
-
-        // Memformat tanggal lahir
         foreach ($data as $anak) {
             $anak->tanggal_lahir = \Carbon\Carbon::parse($anak->tanggal_lahir);
         }
 
-        // Mengirimkan data dengan pagination ke view
-        return view('admin.anak.dataanak', compact('data'));
+    if ($request->ajax()) {
+        return view('admin.anak.table', compact('data'));
     }
+
+    return view('admin.anak.dataanak', compact('data'));
+}
 
 
 
@@ -48,13 +47,16 @@ class AnakController extends Controller
     {
         // Validasi input
         $request->validate([
-            'nik' => 'required|numeric|unique:biodata',
+            'nik' => 'required|string|unique:biodata',
             'nama' => 'required|string',
             'nama_orangtua' => 'required|string',
             'tanggal_lahir' => 'required|date',
             'asal' => 'nullable|string',
             'sekolah' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // max 2MB
+            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',  // Check for Laki-laki or Perempuan
+        'tanggal_masuk_panti' => 'nullable|date', // Optional date field
+        'keterangan' => 'nullable|in:Yatim,Tidak Mampu,Piatu,Yatim Piatu', // Check for valid keterangan
         ]);
 
         // Simpan file foto (jika ada)
@@ -73,6 +75,9 @@ class AnakController extends Controller
             'asal' => $request->asal,
             'sekolah' => $request->sekolah,
             'foto' => $fotoPath, // ⬅️ path file foto yang sudah disimpan
+            'jenis_kelamin' => $request->jenis_kelamin, // Jenis kelamin
+            'tanggal_masuk_panti' => $request->tanggal_masuk_panti, // Tanggal masuk panti
+            'keterangan' => $request->keterangan, // Keterangan
         ]);
 
         // Redirect ke halaman index (dataanak) dengan pesan sukses
@@ -84,13 +89,16 @@ class AnakController extends Controller
     {
         // Validasi input
         $request->validate([
-            'nik' => 'required|numeric',
+            'nik' => 'required|string',
             'nama' => 'required|string',
             'nama_orangtua' => 'required|string',
             'tanggal_lahir' => 'required|date',
             'asal' => 'required|string',
             'sekolah' => 'required|string',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan', // Validate jenis_kelamin
+            'tanggal_masuk_panti' => 'nullable|date', // Optional date field
+            'keterangan' => 'nullable|in:Yatim,Tidak Mampu,Piatu,Yatim Piatu', // Correct validation for keterangan
         ]);
 
         // Temukan data anak berdasarkan ID
@@ -114,6 +122,9 @@ class AnakController extends Controller
             'asal' => $request->asal,
             'sekolah' => $request->sekolah,
             'foto' => $fotoPath,
+            'jenis_kelamin' => $request->jenis_kelamin, // Jenis kelamin
+            'tanggal_masuk_panti' => $request->tanggal_masuk_panti, // Tanggal masuk panti
+            'keterangan' => $request->keterangan, // Keterangan
         ]);
 
         // Redirect kembali dengan pesan sukses

@@ -5,9 +5,6 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="card-title">Manajemen Berita</h3>
-                    </div>
                     <div class="card-body">
                         {{-- Form Tambah Berita --}}
                         <div class="mb-4">

@@ -6,150 +6,83 @@
         <li class="breadcrumb-item active">Silahkan Ajukan Kunjungan</li>
     </ol>
     <div class="my-3 p-3 bg-body rounded shadow-sm">
-        <div class="pb-3">
+        <div class="pb-3 d-flex justify-content-between align-items-center">
+            <!-- Search Form -->
             <form class="d-flex" action="" method="get">
                 <input class="form-control me-1" type="search" name="katakunci" value="{{ Request::get('katakunci') }}"
                     placeholder="Masukkan kata kunci" aria-label="Search">
                 <button class="btn btn-secondary" type="submit">Cari</button>
             </form>
-        </div>
-        <div class="pb-3">
-            <a href="{{ route('user.tambahpengajuankunjungan') }}" class="btn btn-primary">+ Kunjungan Baru</a>
-        </div>
 
-        <table class="table table-striped">
+            <!-- Button for New Kunjungan -->
+            <a href="{{ route('user.tambahpengajuankunjungan') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Kunjungan Baru
+            </a>
+        </div>
+        <table class="table table-striped" style="border-collapse: collapse;">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Nama Pengaju</th>
-                    <th>Tujuan Kunjungan</th>
-                    <th>Instansi</th>
-                    <th>Tanggal Kunjungan</th>
-                    <th>Status</th>
-                    <th>Keterangan</th>
-                    <th>Aksi</th>
+                    <th style="border: 0.5px solid #ddd; padding: 10px; background-color: #f8f9fa;">No</th>
+                    <th style="border: 0.5px solid #ddd; padding: 10px; background-color: #f8f9fa;">Nama Pengaju</th>
+                    <th style="border: 0.5px solid #ddd; padding: 10px; background-color: #f8f9fa;">Tujuan Kunjungan</th>
+                    <th style="border: 0.5px solid #ddd; padding: 10px; background-color: #f8f9fa;">Instansi</th>
+                    <th style="border: 0.5px solid #ddd; padding: 10px; background-color: #f8f9fa;">Tanggal Kunjungan</th>
+                    <th style="border: 0.5px solid #ddd; padding: 10px; background-color: #f8f9fa;">Status</th>
+                    <th style="border: 0.5px solid #ddd; padding: 10px; background-color: #f8f9fa;">Keterangan</th>
+                    <th style="border: 0.5px solid #ddd; padding: 10px; background-color: #f8f9fa;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($kunjungans as $kunjungan)
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $kunjungan->nama_pengaju }}</td>
-                        <td>{{ $kunjungan->tujuan_kunjungan }}</td>
-                        <td>{{ $kunjungan->instansi }}</td>
-                        <td>{{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d/m/Y') }}</td>
-                        <td>
+                        <td style="border: 0.5px solid #ddd; padding: 10px;">{{ $loop->iteration }}</td>
+                        <td style="border: 0.5px solid #ddd; padding: 10px;">{{ $kunjungan->nama_pengaju }}</td>
+                        <td style="border: 0.5px solid #ddd; padding: 10px;">{{ $kunjungan->tujuan_kunjungan }}</td>
+                        <td style="border: 0.5px solid #ddd; padding: 10px;">{{ $kunjungan->instansi }}</td>
+                        <td style="border: 0.5px solid #ddd; padding: 10px;">
+                            {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d/m/Y') }}</td>
+                        <td style="border: 0.5px solid #ddd; padding: 10px;">
                             <span
-                                class="badge bg-{{ $kunjungan->status == 'disetujui' ? 'success' : ($kunjungan->status == 'ditolak' ? 'danger' : 'warning') }}">
+                                class="badge 
+                        @if ($kunjungan->status == 'disetujui') bg-success
+                        @elseif($kunjungan->status == 'ditolak' || $kunjungan->status == 'dibatalkan') bg-danger
+                        @else bg-warning @endif"
+                                style="padding: 5px 10px; border-radius: 20px; font-size: 14px;">
                                 {{ ucfirst($kunjungan->status) }}
                             </span>
                         </td>
-                        <td>
+                        <td style="border: 0.5px solid #ddd; padding: 10px;">
                             @if ($kunjungan->status == 'ditolak' && $kunjungan->alasan_penolakan)
                                 <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal"
                                     data-bs-target="#alasanModal{{ $kunjungan->id }}">
                                     Lihat Alasan
                                 </button>
-
-                                <!-- Modal Alasan Penolakan -->
-                                <div class="modal fade" id="alasanModal{{ $kunjungan->id }}" tabindex="-1"
-                                    aria-labelledby="alasanModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="alasanModalLabel">Alasan Penolakan</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>{{ $kunjungan->alasan_penolakan }}</p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Tutup</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             @elseif($kunjungan->status == 'disetujui' && $kunjungan->catatan)
                                 <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal"
                                     data-bs-target="#catatanModal{{ $kunjungan->id }}">
                                     Lihat Catatan
                                 </button>
-
-                                <!-- Modal Catatan Persetujuan -->
-                                <div class="modal fade" id="catatanModal{{ $kunjungan->id }}" tabindex="-1"
-                                    aria-labelledby="catatanModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="catatanModalLabel">Catatan Persetujuan</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>{{ $kunjungan->catatan }}</p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Tutup</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             @else
                                 -
                             @endif
                         </td>
-                        <td>
+                        <td style="border: 0.5px solid #ddd; padding: 10px;">
                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
                                 data-bs-target="#detailModal{{ $kunjungan->id }}">
-                                Detail
+                                <i class="fas fa-info-circle"></i> Detail
                             </button>
 
-                            <!-- Modal Detail Kunjungan -->
-                            <div class="modal fade" id="detailModal{{ $kunjungan->id }}" tabindex="-1"
-                                aria-labelledby="detailModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="detailModalLabel">Detail Kunjungan</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <h6>Informasi Pengaju</h6>
-                                                    <p><strong>Nama:</strong> {{ $kunjungan->nama_pengaju }}</p>
-                                                    <p><strong>Alamat:</strong> {{ $kunjungan->alamat }}</p>
-                                                    <p><strong>No. HP:</strong> {{ $kunjungan->no_hp }}</p>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h6>Informasi Kunjungan</h6>
-                                                    <p><strong>Tujuan:</strong> {{ $kunjungan->tujuan_kunjungan }}</p>
-                                                    <p><strong>Instansi:</strong> {{ $kunjungan->instansi }}</p>
-                                                    <p><strong>Tanggal Kunjungan:</strong>
-                                                        {{ \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('d/m/Y') }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            @if ($kunjungan->surat_pengajuan)
-                                                <div class="mt-3">
-                                                    <a href="{{ asset('storage/' . $kunjungan->surat_pengajuan) }}"
-                                                        target="_blank" class="btn btn-sm btn-info">
-                                                        Lihat Surat Pengajuan
-                                                    </a>
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Tutup</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Modal Ajukan Pembatalan -->
+                            @if ($kunjungan->status == 'disetujui' && is_null($kunjungan->status_pembatalan))
+                                <button class="btn btn-sm btn-danger mt-1" data-bs-toggle="modal"
+                                    data-bs-target="#batalModal{{ $kunjungan->id }}">
+                                    Ajukan Pembatalan
+                                </button>
+                            @elseif ($kunjungan->status_pembatalan)
+                                <p class="text-muted mt-1 mb-0">
+                                    Pembatalan: <strong>{{ ucfirst($kunjungan->status_pembatalan) }}</strong>
+                                </p>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
@@ -158,9 +91,38 @@
 
         {{ $kunjungans->links() }}
     </div>
+
+    <!-- Modal Ajukan Pembatalan -->
+    @foreach ($kunjungans as $kunjungan)
+        @if ($kunjungan->status == 'disetujui' && is_null($kunjungan->status_pembatalan))
+            <div class="modal fade" id="batalModal{{ $kunjungan->id }}" tabindex="-1"
+                aria-labelledby="batalModalLabel{{ $kunjungan->id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form method="POST" action="{{ route('user.batalkan.kunjungan', $kunjungan->id) }}">
+                        @csrf
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="batalModalLabel{{ $kunjungan->id }}">Ajukan Pembatalan
+                                    Kunjungan</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <label for="alasan_pembatalan">Alasan Pembatalan:</label>
+                                <textarea class="form-control" name="alasan_pembatalan" rows="4" required></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">Kirim Permintaan</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
+    @endforeach
 @endsection
 
 @section('scripts')
-    <!-- Pastikan Bootstrap JS sudah terload -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 @endsection

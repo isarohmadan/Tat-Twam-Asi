@@ -2,38 +2,49 @@
 
 namespace App\Http\Controllers\KetuaYayasan;
 
-use App\Http\Controllers\Controller;
 use App\Models\Kegiatan;
 use App\Models\Kunjungan;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 
 class JadwalController extends Controller
 {
     public function index()
     {
-        // Mengambil data tanggal yang sudah terblokir (disetujui) untuk kegiatan dan kunjungan
-        $approvedKegiatan = Kegiatan::where('status_pengajuan', 'disetujui')
-            ->get(['tanggal_mulai', 'tanggal_selesai']);
-        $approvedKunjungan = Kunjungan::where('status', 'disetujui')
-            ->get(['tanggal_kunjungan']);
+        // Ambil data kegiatan dan kunjungan yang sudah disetujui
+        $kegiatans = Kegiatan::where('status_pengajuan', 'disetujui')->get();
+        $kunjungans = Kunjungan::where('status', 'disetujui')->get();
 
-        // Gabungkan tanggal yang sudah terblokir
-        $unavailableRanges = [];
+        // Format data agar sesuai dengan FullCalendar
+        $events = [];
 
-        foreach ($approvedKegiatan as $kegiatan) {
-            $unavailableRanges[] = [
-                'from' => \Carbon\Carbon::parse($kegiatan->tanggal_mulai)->format('Y-m-d'),
-                'to' => \Carbon\Carbon::parse($kegiatan->tanggal_selesai)->format('Y-m-d')
+        // Menambahkan data kegiatan ke events
+        foreach ($kegiatans as $kegiatan) {
+            // Pastikan event ditampilkan jika kegiatan lebih dari satu hari
+            $events[] = [
+                'title' => $kegiatan->judul_kegiatan,
+                'start' => $kegiatan->tanggal_mulai = Carbon::parse($kegiatan->tanggal_mulai),
+                'end' => $kegiatan->tanggal_selesai = Carbon::parse($kegiatan->tanggal_selesai),
+                'backgroundColor' => '#28a745', // Warna untuk kegiatan
+                'textColor' => '#fff',
+
             ];
         }
 
-        foreach ($approvedKunjungan as $kunjungan) {
-            $unavailableRanges[] = [
-                'from' => \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('Y-m-d'),
-                'to' => \Carbon\Carbon::parse($kunjungan->tanggal_kunjungan)->format('Y-m-d')
+        // Menambahkan data kunjungan ke events
+        foreach ($kunjungans as $kunjungan) {
+            // Pastikan event ditampilkan jika kunjungan lebih dari satu hari
+            $events[] = [
+                'title' => $kunjungan->tujuan_kunjungan,
+                'start' => $kunjungan->tanggal_kunjungan,
+                'backgroundColor' => '#007bff', // Warna untuk kunjungan
+                'textColor' => '#fff',
+                'allDay' => true, // Menandakan event adalah sepanjang hari
             ];
         }
 
-        return view('ketua_yayasan.jadwal.index', compact('unavailableRanges'));
+        // Kirim data ke view
+        return view('ketua_yayasan.jadwal.index', compact('events'));
     }
 }

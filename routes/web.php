@@ -12,6 +12,9 @@ use App\Http\Controllers\Admin\KegiatanController;
 use App\Http\Controllers\Admin\KeseluruhanDataController;
 use App\Http\Controllers\Admin\KunjunganController;
 use App\Http\Controllers\Admin\BiodataController;
+use App\Http\Controllers\Admin\AdminLaporanController;
+use App\Http\Controllers\Admin\AdminKegiatanPhotoController;
+use App\Http\Controllers\Admin\AdminJadwalController;
 
 use App\Http\Controllers\KetuaYayasan\KetuaYayasanController;
 use App\Http\Controllers\KetuaYayasan\KetuaBannerControllerNew;
@@ -65,7 +68,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Group routes yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
 
- 
+
     Route::prefix('admin')
         ->name('admin.')
         ->middleware([AdminMiddleware::class])
@@ -81,6 +84,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/keseluruhandata', [KeseluruhanDataController::class, 'index'])->name('keseluruhandata');
             Route::get('/anak/export', [AnakController::class, 'export'])->name('anak.export');
             Route::get('/anak/export-pdf/{id}', [AnakController::class, 'exportPdf'])->name('anak.exportpdf');
+            Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
+            Route::get('/jadwal', [AdminJadwalController::class, 'index'])->name('jadwal.index');
         });
 
     Route::prefix('beritas')->middleware([AdminMiddleware::class])
@@ -103,6 +108,12 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.kegiatan.')
         ->group(function () {
             Route::get('/', [KegiatanController::class, 'index'])->name('index');
+            Route::get('/kegiatan-photos', [AdminKegiatanPhotoController::class, 'index'])->name('kegiatan_photos');
+            Route::delete('kegiatan-photos/{id}', [AdminKegiatanPhotoController::class, 'delete'])->name('deletePhoto');
+            // Untuk melihat detail foto berdasarkan id kegiatan
+            Route::get('kegiatan/{id}/detail', [AdminKegiatanPhotoController::class, 'viewDetail'])->name('viewDetail');
+            // Untuk mendownload semua foto berdasarkan id kegiatan
+            Route::get('kegiatan/{id}/download-all', [AdminKegiatanPhotoController::class, 'downloadAllPhotos'])->name('downloadAllPhotos');
         });
     Route::prefix('admin/kunjungan')->middleware([AdminMiddleware::class])
         ->name('admin.kunjungan.')
@@ -120,12 +131,16 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/userkegiatan', [UserKegiatanController::class, 'index'])->name('userkegiatan');
             Route::get('/tambahpengajuankegiatan', [UserKegiatanController::class, 'create'])->name('tambahpengajuankegiatan'); // Diubah
             Route::post('/tambahpengajuankegiatan', [UserKegiatanController::class, 'store'])->name('storekegiatan');
-           Route::post('/user/kegiatan/{id}/batalkan', [UserKegiatanController::class, 'batalkan'])->name('batalkan.kegiatan');
+            Route::post('/user/kegiatan/{id}/batalkan', [UserKegiatanController::class, 'batalkan'])->name('batalkan.kegiatan');
+            Route::post('/kegiatan/{id}/upload-photos', [UserKegiatanController::class, 'submitPhoto'])
+                ->name('kegiatan.submitPhoto');
+            Route::get('/kegiatan/{id}/photos', [UserKegiatanController::class, 'showPhotos'])
+                ->name('kegiatan.showPhotos');
 
             Route::get('/userkunjungan', [UserKunjunganController::class, 'index'])->name('userkunjungan');
             Route::get('/tambahpengajuankunjungan', [UserKunjunganController::class, 'create'])->name('tambahpengajuankunjungan');
             Route::post('/tambahpengajuankunjungan', [UserKunjunganController::class, 'store'])->name('storekunjungan');
-            
+            Route::post('/user/kunjungan/{id}/batalkan', [UserKunjunganController::class, 'batalkan'])->name('batalkan.kunjungan');
         });
 });
 
@@ -163,9 +178,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [KetuaKegiatanController::class, 'index'])->name('index');
             Route::post('/approve/{id}', [KetuaKegiatanController::class, 'approve'])->name('approve');
             Route::post('/reject/{id}', [KetuaKegiatanController::class, 'reject'])->name('reject');
- Route::post('/ketua_yayasan/kegiatan/{id}/setujui-pembatalan', [KetuaKegiatanController::class, 'setujuiPembatalan'])->name('setujuiPembatalan');
-Route::post('/ketua_yayasan/kegiatan/{id}/tolak-pembatalan', [KetuaKegiatanController::class, 'tolakPembatalan'])->name('tolakPembatalan');
-
+            Route::post('/ketua_yayasan/kegiatan/{id}/setujui-pembatalan', [KetuaKegiatanController::class, 'setujuiPembatalan'])->name('setujuiPembatalan');
+            Route::post('/ketua_yayasan/kegiatan/{id}/tolak-pembatalan', [KetuaKegiatanController::class, 'tolakPembatalan'])->name('tolakPembatalan');
+            Route::post('/kegiatan/{id}/terlaksana', [KetuaKegiatanController::class, 'markAsCompleted'])->name('markAsCompleted');
         });
     Route::prefix('ketua_yayasan/kunjungan')->middleware([KetuaYayasanMiddleware::class])
         ->name('ketua_yayasan.kunjungan.')
@@ -173,5 +188,7 @@ Route::post('/ketua_yayasan/kegiatan/{id}/tolak-pembatalan', [KetuaKegiatanContr
             Route::get('/', [KetuaKunjunganController::class, 'index'])->name('index');
             Route::post('/approve/{id}', [KetuaKunjunganController::class, 'approve'])->name('approve');
             Route::post('/reject/{id}', [KetuaKunjunganController::class, 'reject'])->name('reject');
+            Route::post('/ketua_yayasan/kunjungan/{id}/setujui-pembatalan', [KetuaKunjunganController::class, 'setujuiPembatalan'])->name('setujuiPembatalan');
+            Route::post('/ketua_yayasan/kunjungan/{id}/tolak-pembatalan', [KetuaKunjunganController::class, 'tolakPembatalan'])->name('tolakPembatalan');
         });
 });

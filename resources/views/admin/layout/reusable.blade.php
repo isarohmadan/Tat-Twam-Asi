@@ -42,6 +42,8 @@
 </body>
 
 </html>
+ <!-- Add FullCalendar CDN link here -->
+    @stack('scripts') <!-- This is where FullCalendar's CDN link will be included -->
 
 <link href="{{ asset('vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
 <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">

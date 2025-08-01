@@ -32,9 +32,9 @@
         <form action="{{ route('user.storekegiatan') }}" method="post" enctype="multipart/form-data">
             @csrf
             <div class="my-3 p-3 bg-body rounded shadow-sm">
-
+                <!-- Form Fields -->
                 <div class="mb-3 row">
-                    <label for="nama_pengaju" class="col-sm-2 col-form-label">Nama Pengaju</label>
+                    <label for="nama_pengaju" class="col-sm-2 col-form-label">Nama Lengkap</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control simple-input" name="nama_pengaju" id="nama_pengaju"
                             value="{{ old('nama_pengaju') }}" required>
@@ -146,20 +146,7 @@
                         from: range.from,
                         to: range.to
                     };
-                }), // Menonaktifkan rentang tanggal mulai sampai selesai jika status 'disetujui'
-                dateFormat: "Y-m-d",
-                onDayCreate: function(dObj, dStr, fp, dayElem) {
-                    var date = dayElem.dateObj;
-                    var dateStr = date.toISOString().split('T')[0]; // Format date YYYY-MM-DD
-
-                    // Cek jika tanggal ada di rentang unavailableRanges
-                    for (let range of unavailableRanges) {
-                        if (dateStr >= range.from && dateStr <= range.to) {
-                            dayElem.setAttribute('title', 'Jadwal sudah terisi'); // Menambahkan tooltip
-                            dayElem.style.opacity = "0.5"; // Mengatur transparansi tanggal
-                        }
-                    }
-                }
+                }),
             });
 
             // Jika ada input tanggal selesai, atur juga agar tidak bisa memilih rentang tanggal yang sudah disetujui
@@ -179,12 +166,20 @@
                     for (let range of unavailableRanges) {
                         if (dateStr >= range.from && dateStr <= range.to) {
                             dayElem.setAttribute('title', 'Jadwal sudah terisi');
-                            dayElem.style.opacity = "0.5"; // Mengatur transparansi tanggal
+                            dayElem.style.opacity =
+                            "0.7"; // Mengatur opacity menjadi 0.7 supaya sedikit terlihat
+                            dayElem.style.pointerEvents =
+                            "none"; // Menonaktifkan klik pada tanggal yang diblokir
+                            dayElem.style.backgroundColor =
+                            "#e0e0e0"; // Menambahkan latar belakang pudar
+                            dayElem.style.color =
+                            "#bbb"; // Mengubah warna teks menjadi sedikit lebih pudar untuk efek yang lebih jelas
                         }
                     }
                 }
             });
         });
     </script>
+
 
 @endsection

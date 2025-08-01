@@ -55,6 +55,11 @@
                         {{ session('success') }}
                     </div>
                 @endif
+                <div class="mb-3">
+                    <a href="{{ route('admin.jadwal.index') }}" class="btn btn-primary">
+                        <i class="fas fa-calendar-alt"></i> Lihat Jadwal
+                    </a>
+                </div>
 
                 <!-- Pencarian Otomatis -->
                 <div class="pb-3">
@@ -71,7 +76,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Pengaju</th>
+                                <th>Nama</th>
                                 <th>Judul Kegiatan</th>
                                 <th>Instansi</th>
                                 <th>Tanggal Mulai</th>
@@ -159,7 +164,7 @@
                                 <h6 class="fw-bold">Informasi Pengaju</h6>
                                 <hr>
                                 <div class="mb-3">
-                                    <label>Nama Pengaju:</label>
+                                    <label>Nama:</label>
                                     <p>{{ $kegiatan->nama_pengaju }}</p>
                                 </div>
                                 <div class="mb-3">
